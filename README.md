@@ -55,14 +55,16 @@ python3 -m venv venv
 > Notice **(venv)** at the start of each line in terminal, which indicates that you are working inside the virtual environment.
 
 9. Install Flask
-```pip3 install Flask```
+```
+pip3 install Flask
+```
 10. Create a new folder for the web app files
 ```
 mkdir bm_app
 cd bm_app/
 nano app.py
 ```
-11. In the app.py file paste this, then close and save
+11. In the **app.py** file paste this, then close and save
 ```
 from flask import Flask
 app = Flask(__name__)
@@ -71,7 +73,7 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello, World!'
 ```
-12. Then start the app with this command:
+12. Start the Flask app with this command:
 ```
 flask run --host=0.0.0.0
 ```
@@ -88,12 +90,11 @@ deactivate
 ```
 sudo apt-get install postgresql postgresql-client
 ```
-17. Then create new user
+17. Then create a new user
  ```
 sudo -u postgres bash
 CREATE USER bm_appuser WITH ENCRYPTED PASSWORD ‘bm_appuser01’;
 ALTER ROLE bm_appuser WITH SUPERUSER;
-\q
 ```
 18. Create database for our app
 ```
@@ -129,4 +130,4 @@ host    all             all             127.0.0.1/32            md5
 /etc/init.d/postgresql restart
 ```
 > Then type in `exit` so you are no longer root
-> For any help with troubleshooting follow the [official guide](https://www.stuartellis.name/articles/postgresql-setup/)
+> For any help with troubleshooting follow the [PostgreSQL Guide](https://www.stuartellis.name/articles/postgresql-setup/)
