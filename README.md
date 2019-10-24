@@ -82,26 +82,30 @@ flask run --host=0.0.0.0
 home.local:5000
 ```
 14. You should see a web page with **Hello, World**. If this is not the case you can refer to offical [Flask Guide](https://flask.palletsprojects.com/en/1.1.x/quickstart/).
-15. Close VENV
+15. Install Flask-Admin, we will use it later to view rows in database tables
+```
+pip3 install flask-admin
+```
+16. Close VENV
 ```
 deactivate
 ```
-16. Install PostgreSQL database to store the bank transactions
+17. Install PostgreSQL database to store the bank transactions
 ```
 sudo apt-get install postgresql postgresql-client
 ```
-17. Then create a new user
+18. Then create a new user
  ```
 sudo -u postgres bash
 CREATE USER bm_appuser WITH ENCRYPTED PASSWORD ‘bm_appuser01’;
 ALTER ROLE bm_appuser WITH SUPERUSER;
 ```
-18. Create database for our app
+19. Create database for our app
 ```
 CREATE DATABASE budgetmonitor WITH ENCODING 'UTF-8';
 \q
 ```
-19. Enable remote access to DB
+20. Enable remote access to DB
 ```
 nano /etc/postgresql/11/main/postresql.conf
 ```
@@ -125,9 +129,10 @@ host    all             all             127.0.0.1/32            md5
 ```
 > Replace the IP, to **0.0.0.0/0**
 
-20. Restart the PostgreSQL service
+21. Restart the PostgreSQL service
 ```
 /etc/init.d/postgresql restart
 ```
 > Then type in `exit` so you are no longer root
 > For any help with troubleshooting follow the [PostgreSQL Guide](https://www.stuartellis.name/articles/postgresql-setup/)
+22. 
