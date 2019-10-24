@@ -101,7 +101,7 @@ ALTER ROLE bm_appuser WITH SUPERUSER;
 CREATE DATABASE budgetmonitor WITH ENCODING 'UTF-8';
 \q
 ```
-18. Enable remote access to DB
+19. Enable remote access to DB
 ```
 nano /etc/postgresql/11/main/postresql.conf
 ```
@@ -125,7 +125,7 @@ host    all             all             127.0.0.1/32            md5
 ```
 > Replace the IP, to **0.0.0.0/0**
 
-19. Restart the PostgreSQL service
+20. Restart the PostgreSQL service
 ```
 /etc/init.d/postgresql restart
 ```
