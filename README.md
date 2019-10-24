@@ -7,7 +7,7 @@ Python + Flask + PostgreSQL web app. Upload a statement in QIF format. Data is s
 # Why QIF not CSV?
 All banks I have expierienced with, produce the QIF file in exact same format, where CSV have different formatting.
 This makes it easier to convert and upload the file with python to DB.
-[[https://github.com/michalchrzastek/Budget-Monitor/blob/master/img/microsoft_money_QIF.png|alt=QIF]]
+![alt text](https://github.com/michalchrzastek/Budget-Monitor/blob/master/img/microsoft_money_QIF.png)
 
 
 # Why?
