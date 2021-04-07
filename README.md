@@ -7,17 +7,17 @@ Python + Flask + SQLite (or PostgreSQL) web app. Upload a statement in QIF forma
 ## Why QIF not CSV?
 All banks I have expierienced with, produce the QIF file in exact same format, where CSV have different formatting.
 This makes it easier to load a statement from multiple banks, in the same format.
-![alt text](https://github.com/michalchrzastek/Budget-Monitor/blob/master/img/microsoft_money_QIF.png)
 ie:
 In QIF file all transaciton amounts coming out are represented as negative (with preceding minus "-"). This is true across accounts (debit / credit).
 In CSV depending on bank and account (credit/debit), the transation amount is represented differently, hence the *.qif.
+![alt text](https://github.com/michalchrzastek/Budget-Monitor/blob/master/img/microsoft_money_QIF.png)
 
 
 ## Why?
 There is a number of budget monitor like apps, but appart of some requiring to register or to share personal and bank details, I just wanted to build my own :)
 
 ## Instalation instructions (for Mac):
-Prerequisite: Python3.6 (minimum)
+Prerequisite: Python3.6 (minimum), check your version: python3 --version
 
 1. Install Virtual Environment for Python3, might require sudo
 ```
@@ -44,27 +44,23 @@ pip3 insatll Flask-SQLAlchemy
 ```
 pip3 install pandas
 ```
-
-4. Download this repo
-
-Maybe 4. Create a new folder for the web app files
+5. Specify application dicrovery 
 ```
-mkdir bm_app
-cd bm_app/
-nano app.py
+export FLASK_APP=main.py
 ```
-xx. Start the Flask app with this command:
+6. Start the Flask app with this command:
 ```
 flask run
 ```
-13. Open a web browser on your laptop/PC and enter:
+7. Open a web browser and enter:
 ```
 localhost:5000
 ```
+8. PLAY :)
 
-YY. Optional, To Close VENV
+
+Optional, To Close the app and VENV
 ```
+CTRL + C
 deactivate
 ```
-
-
