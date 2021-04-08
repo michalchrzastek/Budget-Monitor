@@ -45,19 +45,24 @@ pip3 insatll Flask-SQLAlchemy
 ```
 pip3 install pandas
 ```
-5. Specify application dicrovery 
+5. Edit config.py, update location and upload folder paths
+```
+SQLALCHEMY_DATABASE_URI
+UPLOAD_FOLDER
+```
+6. Specify application dicrovery 
 ```
 export FLASK_APP=main.py
 ```
-6. Start the Flask app with this command:
+7. Start the Flask app with this command:
 ```
 flask run
 ```
-7. Open a web browser and enter:
+8. Open a web browser and enter:
 ```
 localhost:5000
 ```
-8. PLAY :)
+9. PLAY :)
 
 
 Optional, To Close the app and VENV
