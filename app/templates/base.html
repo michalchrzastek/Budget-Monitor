@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Budget Monitor Web App">
+  <meta name="author" content="MichalChrzastek">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/css/tempusdominus-bootstrap-4.min.css" integrity="sha512-PMjWzHVtwxdq7m7GIxBot5vdxUY+5aKP9wpKtvnNBZrVv1srI8tU6xvFMzG8crLNcMj/8Xl/WWmo/oAP/40p1g==" crossorigin="anonymous" />  <link rel="stylesheet" type="text/css" media="screen" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}">
+  {% block title %}
+  <title>{% if title %}{{ title }} - Budget Monitor{% else %}Budget Monitor{% endif %}</title>
+  {% endblock %}
+</head>
+<body>
+
+{% block content %}
+
+    <div class="grid-container">
+    {% block navbar %}
+        <header style="z-index:1007;">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-1">
+                <a class="navbar-brand" href="{{ url_for('index') }}">Home</a>
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportContent">
+                    <ul class="navbar-nav mr-auto">
+                        {% block subnav1 %}{% endblock %}
+                        <li class="nav-item active dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Tools</a>
+                            <div class="dropdown-menu">
+                                {% if accountid %}
+                                <a class="dropdown-item" href="{{ url_for('taggroup', accountid=accountid) }}">Tag Groups</a>
+                                <a class="dropdown-item" href="{{ url_for('tag', accountid=accountid) }}">Tags</a>
+                                <a class="dropdown-item" href="{{ url_for('condition', accountid=accountid) }}">Conditions</a>
+                                <a class="dropdown-item" href="{{ url_for('description', accountid=accountid) }}">Descriptions</a>
+                                {% else %}
+                                <form method="post" class="container-fluid">
+                                    <div class="form-row align-items-center">
+                                        <label class="Account Name:" for="inlineFormInputName">Account Name</label>
+                                        <input type="text" class="form-control" id="inlineFormInputName" name="accName" required>
+                                        <button type="submit" name="action" value="addAccount" class="btn btn-primary btn-sm btn-block mt-1">Create</button>
+                                    </div>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+    {% endblock %}
+        <section class="acc_name">
+            <div class="row p-0">
+                <h5 class="my-1 mx-0"><b>{% if acc_name %}{{ acc_name.accName }} - {% endif %}{{ title }}</b></h5>
+            </div>
+        </section>
+
+        <main>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{category}} mx-auto" role="alert">{{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            {# application content needs to be provided in the app_content block #}
+            {% block app_content %}{% endblock %}
+        </main>
+
+    </div>
+    <div class="footer">
+        <span class="text-muted small pl-2">
+            <a href="https://github.com/michalchrzastek/Budget-Monitor">Budget Monitor @ GitHub</a>
+        </span>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js" integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/js/tempusdominus-bootstrap-4.min.js" integrity="sha512-2JBCbWoMJPH+Uj7Wq5OLub8E5edWHlTM4ar/YJkZh3plwB2INhhOC3eDoqHm1Za/ZOSksrLlURLoyXVdfQXqwg==" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+    //enable black styling for tooltip
+    $(document).ready(function(){
+        $('[rel=tooltip]').tooltip({container:'body'});
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+
+    //populate .date field => date picker
+    $('.date').each(function(){
+        var idx = $(this).data('idx');
+        $('#datetimepicker'+idx).datetimepicker({
+        weekstart:1,
+        locale:'en-gb',
+        allowInputToggle: true,
+        useCurrent: false,
+        format: 'YYYY-MM-DD'
+        });
+    });
+</script>
+{% block page_script %}{% endblock %}
+{% endblock %}
+
+

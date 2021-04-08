@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block subnav %}
+{% endblock %}
+
+{% block app_content %}
+<div class="card-deck">
+{% for account in accounts %}
+<div class="card text-white bg-dark mb-3" style="max-width: 18rem;">
+  <div class="card-header">{{ account.accName }}</div>
+  <div class="card-body">
+    <h5 class="card-title">{% if account.balance %}Balance: £{{ account.balance|int }}{% endif %}&nbsp;</h5>
+    <p class="card-text">Last Upload: {{ account.upldate }}</p>
+    <a href="{{ url_for('overview', accountid=account.id) }}" class="btn btn-primary">View</a>
+  </div>
+</div>
+{% endfor %}
+</div>
+{% endblock %}
+
+
+

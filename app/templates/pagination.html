@@ -1,0 +1,29 @@
+{% macro pagi(pagination, url_for_name) %}
+    <div class="row my-2 pr-3 btn-group">
+        {% if has_prev %}
+            <a href="{{ has_prev }}" class="btn btn-outline-primary btn-sm"><span class="fa fa-step-backward"></span></a>
+        {% else %}
+            <a href="#" class="btn btn-outline-primary disabled btn-sm"><span class="fa fa-step-backward"></span></a>  
+        {% endif %}
+
+        {% for page in pagination.iter_pages(left_edge=2, left_current=2, right_current=4, right_edge=2) %}
+        {% if page %}
+            
+            {% if page==pagination.page %}
+            <a class="btn btn-primary btn-sm" href="{{ url_for(url_for_name, accountid=accountid, page=page) }}">{{ page }}</a>
+            {% else %}
+            <a class="btn btn-outline-primary btn-sm" href="{{ url_for(url_for_name, accountid=accountid, page=page) }}">{{ page }}</a>
+            {% endif %}
+            
+        {% else %}
+            <a href="#" class="btn btn-outline-primary disabled btn-sm">…</a> 
+        {% endif %}
+        {% endfor %}
+
+        {% if has_next %}
+            <a href="{{ has_next }}" class="btn btn-outline-primary btn-sm"><span class="fa fa-step-forward"></span></a>
+        {% else %}
+            <a href="#" class="btn btn-outline-primary disabled btn-sm"><span class="fa fa-step-forward"></span></a>
+        {% endif %}
+    </div>
+{% endmacro %}

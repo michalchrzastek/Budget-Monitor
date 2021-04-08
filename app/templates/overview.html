@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+
+{% block subnav1 %}
+{% if cnt_all.cnt > 0 %}
+<li class="nav-item active"><a class="nav-link" href="{{ url_for('listAll', accountid=accountid) }}">All</a></li>
+{% endif %}
+{% if cnt_new.cnt > 0 %}
+<li class="nav-item active"><a class="nav-link" href="{{ url_for('listNew', accountid=accountid) }}">New</a></li>
+{% endif %}
+<li class="nav-item active"><a class="nav-link" href="" data-toggle="modal" data-target="#uploadModal">Upload Statement</a></li>
+{% endblock %}
+
+{% block app_content %}
+<!-- Modal UPLOAD STATEMENT -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-light">
+        <h4 class="modal-title" id="exampleModalLabel">Select Statement File (*.qif)</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true" class="text-light">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="form" method="post" enctype="multipart/form-data" accept="text/plain">
+          <div class="row">
+            <div class="col-sm-8"><input type="file" name="file" class="form-control" required></div>
+            <div class="col-sm-2">
+              <input class="form-check-input" type="radio" name="card" id="credit" value="C" required>
+              <label class="form-check-label" for="credit">Credit</label>
+            </div>
+            <div class="col-sm-2">
+              <input class="form-check-input" type="radio" name="card" id="debit" value="D" required>
+              <label class="form-check-label" for="debit">Debit</label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success d-none" id="btnUploadStatement" name="btnSubmit" value="uploadStatement">Upload Statement</button>
+        </form>
+        <div class="row px-3 mt-3">
+          <table class="table table-sm table-striped small">
+            <thead class="thead-dark">
+              <tr><th>Card</th><th>Transaction</th><th>Date</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+              {% for row in latest %}
+                <tr><td>{{ row.card }}</td><td>{{ row.desc }}</td><td>{{ row.traDate }}</td><td>{{ row.amount }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('btnUploadStatement').click()">Upload</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--END OF MODAL_UPLOAD-->
+  
+<div class="row mt-3">
+  {% if chart_count[0] > 0 %}
+  <div class="col-sm p-2 bg-white">
+    {% for c in chart1 %}
+      {{ c.gName }}
+    {% endfor %}
+    ({{chart_months[0]}} months)
+    <div class="item-panel-body p-2 bg-white"><canvas id="chart_c0" height="130"></canvas></div>
+  </div>
+  {% endif %}
+
+  {% if chart_count[1] %}
+  <div class="col-sm p-2 bg-white">
+    {% for c in chart2 %}
+      {{ c.gName }}
+    {% endfor %}
+    ({{chart_months[1]}} months)
+    <div class="item-panel-body p-2 bg-white"><canvas id="chart_c1" height="130"></canvas></div>
+  </div>
+  {% endif %}
+
+  {% if chart_count[2] %}
+  <div class="col-sm p-2 bg-white">
+    {% for c in chart3 %}
+      {{ c.gName }}
+    {% endfor %}
+    ({{chart_months[2]}} months)
+    <div class="item-panel-body p-2 bg-white"><canvas id="chart_c2" height="130"></canvas></div>
+  </div>
+  {% endif %}
+</div>
+
+{% if cnt_all.cnt>0 %}
+<div class="row mt-3">
+  <div class="col-sm-4 p-0">
+    <div class="item-panel-title mr-2 p-2 bg-white">Previous Month In & Out</div>
+    <div class="item-panel-body mr-2 p-2 bg-white"><canvas id="chart_in_out" height="154"></canvas></div>
+  </div>
+  <div class="col-sm-8 p-0">
+    <div class="item-panel-title ml-2 p-2 bg-white">Monthly Trend</div>
+    <div class="item-panel-body ml-2 p-2 bg-white"><canvas id="chart_monthly_trend" height="75"></canvas></div>
+  </div>
+</div>
+
+<div class="row mt-3">
+  <div class="col-sm-4 p-0">
+    <div class="item-panel-title mr-2 p-2 bg-white">Avg Month vs Prev Month</div>
+    <div class="item-panel-body mr-2 p-2 bg-white"><canvas id="chart_avg_month" height="{{ chart_avg_month_height }}"></canvas></div>
+  </div>
+
+  <div class="col-sm-8 p-0 mb-4">
+    <div class="item-panel-title ml-2 p-2 bg-white">
+      <form method="post" class="form-inline ml-2">
+        <div class="col-sm-2 p-0">Summary Table</div>
+        <div class="col-sm-1 p-0">
+          <select class="form-control form-control-sm" name="selectedYear" id="selectedYear" onchange="selectedYearFilter()">
+          {% for y in years %}
+            {% if selected_year|int == y.year|int %}
+              <option value="{{ y.year|round|int }}" selected>{{ y.year|int }}</option>
+            {% else %}
+              <option value="{{ y.year|round|int }}">{{ y.year|int }}</option>
+            {% endif %}
+          {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-1 p-0"><button type="submit" class="btn btn-outline-primary btn-sm d-none" name="btnSubmit" value="applyFilter" id="applyFilter"><span class="fa fa-filter"></span></button></div>
+        <div class="col-sm-8 p-0">
+          <button type="button" id="btn_gettable_yby" class="btn btn-outline-primary btn-sm float-right"><span class="fa fa-exchange-alt"></span></button>
+          <button type="button" id="btn_gettable_year" class="btn btn-outline-primary btn-sm float-right d-none"><span class="fa fa-exchange-alt"></span></button>
+        </div>
+      </form>
+    </div>
+    <div class="item-panel-body ml-2 px-2 pb-1 bg-white" id="table_panel">
+    </div>
+  </div>
+</div>
+
+{% else %}
+<div class="row p-3">
+  <p class="h4 text-muted">No transactions, please upload a statement.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+{% block page_script %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
+<script>
+
+  //apply filter for year selection, click hidden button
+  function selectedYearFilter(){
+    document.getElementById("applyFilter").click();
+  }
+
+  //load table summary on button click
+  $('#btn_gettable_yby').on('click', function(){
+    $.getJSON('/summary/{{ accountid }}/2/{{ selected_year|int }}',
+      function(data){
+        $('#table_panel').html(data);
+        $('#btn_gettable_yby').toggleClass('d-none');
+        $('#btn_gettable_year').toggleClass('d-none');
+    });
+  });
+  $('#btn_gettable_year').on('click', function(){
+    $.getJSON('/summary/{{ accountid }}/1/{{ selected_year|int }}',
+      function(data){
+        $('#table_panel').html(data);
+        $('#btn_gettable_yby').toggleClass('d-none');
+        $('#btn_gettable_year').toggleClass('d-none');
+    });
+  });
+  //on page load, call default table view
+  $('#btn_gettable_year').click();
+ 
+  //chart1 START
+  {% if chart_count[0] > 0 %}
+  var config_chart0 = {
+    data: {
+			labels: [
+        {% for key in chart1_data.items() %}
+          '{{ key[0] }}',
+        {% endfor %}
+      ],
+			datasets: [
+        {% for c in chart1 %}
+        {
+				  label: '{{ c[0] }}',
+				  backgroundColor: '{{ c[1] }}',
+				  data: [
+              {% for key, value in chart1_data.items() %}
+                {% for k,v in value.items() %}
+                  {% if k==c[0] %}
+                    '{{ v|int }}',
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+				  ]
+        },
+        {% endfor %} 
+      ]
+    },
+    type: 'bar',
+      options: {
+        responsive: true,
+        title: {
+          display: false
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: true
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+  };
+  {% endif %}
+  //chart1 END
+    //chart2 START
+  {% if chart_count[1] > 0 %}
+  var config_chart1 = {
+    data: {
+			labels: [
+        {% for key in chart2_data.items() %}
+          '{{ key[0] }}',
+        {% endfor %}
+      ],
+			datasets: [
+        {% for c in chart2 %}
+        {
+				  label: '{{ c[0] }}',
+				  backgroundColor: '{{ c[1] }}',
+				  data: [
+              {% for key, value in chart2_data.items() %}
+                {% for k,v in value.items() %}
+                  {% if k==c[0] %}
+                    '{{ v|int }}',
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+				  ]
+        },
+        {% endfor %} 
+      ]
+    },
+    type: 'bar',
+      options: {
+        responsive: true,
+        title: {
+          display: false
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: true
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+  };
+  {% endif %}
+  //chart2 END
+  //chart3 START
+  {% if chart_count[2] > 0 %}
+  var config_chart2 = {
+    data: {
+			labels: [
+        {% for key in chart3_data.items() %}
+          '{{ key[0] }}',
+        {% endfor %}
+      ],
+			datasets: [
+        {% for c in chart3 %}
+        {
+				  label: '{{ c[0] }}',
+				  backgroundColor: '{{ c[1] }}',
+				  data: [
+              {% for key, value in chart3_data.items() %}
+                {% for k,v in value.items() %}
+                  {% if k==c[0] %}
+                    '{{ v|int }}',
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+				  ]
+        },
+        {% endfor %} 
+      ]
+    },
+    type: 'bar',
+      options: {
+        responsive: true,
+        title: {
+          display: false
+        },
+        tooltips: {
+          mode: 'index',
+          intersect: true
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+  };
+  {% endif %}
+  //chart3 END
+  //chart_in_out START
+  var config_in_out = {
+		type: 'pie',
+		data: {
+			datasets: [{
+				data: [
+          '{{ chart_in_out[0]|int }}',
+          '{{ chart_in_out[1]|int }}'
+				],
+				backgroundColor: ['#0275d8','#4e9ee4'],
+				label: 'Previous Month In vs Out'
+			}],
+			labels: ['In','Out']
+		},
+		options: {
+      responsive: true,
+      legend: {
+        position: 'left'
+      }
+		}
+	};
+  //chart_in_out END
+  //chart_monthly_trend START
+  var config_monthly_trend = {
+    data: {
+      labels: [
+        {% for m in chart_monthly_trend %}
+          '{{ m.mmm }}',
+        {% endfor %}
+      ],
+			datasets: [{
+				type: 'line',
+        label: 'Avg',
+        backgroundColor: '#212121',
+				borderColor: '#4e9ee4',
+				borderWidth: 2,
+				fill: false,
+				data: [{% for m in chart_monthly_trend %} ' {{ m.total_avg|int }}', {% endfor %}]
+			}, {
+				type: 'bar',
+				label: 'Month',
+				backgroundColor: '#0275d8',
+				data: [{% for m in chart_monthly_trend %} '{{ m.total|int }}', {% endfor %}],
+				borderColor: '#ffffff',
+				borderWidth: 1
+      }],
+    },
+    type: 'bar',
+    options: {
+      responsive: true,
+      legend: false,
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      },
+      tooltips: {
+        mode: 'index',
+        intersect: true
+      }
+    }
+	};
+  //chart_monthly_trend END
+ //chart_avg_month START
+  var config_avg_month = {
+    data: {
+			labels: ['Avg Month', 'Prev Month'],
+			datasets: [
+      {% for c in chart_avg_month %}
+        {
+          label: '{{c.Category}}',
+          backgroundColor: '{{c.color}}',
+          data: [ '{{ c.Avg_Month|int }}','{{ c.Prev_Month|int }}']
+        }, 
+      {% endfor %}
+      ]
+    },
+    type: 'bar',
+    options: {
+      title: {
+        display: false
+      },
+      tooltips: {
+        mode: 'index',
+        intersect: false
+      },
+      responsive: true,
+      scales: {
+        xAxes: [{
+          stacked: true,
+        }],
+        yAxes: [{
+          stacked: true
+        }]
+      }
+    }
+	};
+  //chart_avg_month END
+  //load all charts
+	window.onload = function() {
+		var ctx_in_out = document.getElementById('chart_in_out').getContext('2d');
+    window.myPie = new Chart(ctx_in_out, config_in_out);
+    var ctx_monthly_trend = document.getElementById('chart_monthly_trend').getContext('2d');
+    window.myMixedChart = new Chart(ctx_monthly_trend, config_monthly_trend);
+    var ctx_avg_month = document.getElementById('chart_avg_month').getContext('2d');
+    window.myStacked = new Chart(ctx_avg_month, config_avg_month);
+
+    {% for i in [0,1,2] %}
+      {% if chart_count[0] > 0 %}
+        var ctx_chart{{i}} = document.getElementById('chart_c{{i}}').getContext('2d');
+        window.myBar{{i}} = new Chart(ctx_chart{{i}}, config_chart{{i}}); 
+      {% endif %}
+    {% endfor %}
+
+  };
+  
+</script>
+{% endblock %}
+

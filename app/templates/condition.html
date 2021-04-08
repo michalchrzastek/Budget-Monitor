@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% from "pagination.html" import pagi with context %}
+
+{% block subnav1 %}
+<li class="nav-item active"><a class="nav-link" href="{{ url_for('overview', accountid=accountid) }}">Overview</a></li>
+	{% if cnt_new.cnt > 0 and page_name=='listAll' %}
+	<li class="nav-item active"><a class="nav-link" href="{{ url_for('listNew', accountid=accountid) }}">New</a></li>
+	{% endif %}
+	{% if page_name=='listNew' %}
+	<li class="nav-item active"><a class="nav-link" href="{{ url_for('listAll', accountid=accountid) }}">All</a></li>
+	{% endif %}
+{% endblock %}
+
+{% block app_content %}
+<main>
+	<form method="post">
+		<div class="row">
+			<label class="col-sm-7 badge badge-dark py-2">Transaction Text To Match</label>
+			<label class="col-sm-3 badge badge-dark py-2">Tag</label>
+		</div>
+		<div class="row">
+			<div class="col-sm-7 p-0"><input type="text" class="form-control form-control-sm" name="cond_desc" placeholder="Enter new..." autocomplete="off" required></div>
+			<div class="col-sm-3 p-0"><select name="cond_tag" id="tag_list_00" class="form-control form-control-sm tag_list" data-idx="00" data-selitem="" required></select></div>
+			<div class="col-sm-2 pr-0"><button type="submit" name="btnSubmit" value="createCond" class="btn btn-outline-primary btn-block btn-sm float-right"><span class="fa fa-plus"></span></button></div>
+		</div>
+	</form>
+
+{% if show_pagination %}
+	{{ pagi(pagination, url_for_name) }}
+{% else %}
+	<br><br>
+{% endif %}
+
+{% for cond in pagination.items %}
+	<form method="post">
+	  <div class="row">
+		<input type="hidden" name="cond_ID" value="{{ cond.id }}" id="id{{ loop.index }}" required>
+		<div class="col-sm-7 p-0"><input type="text" class="form-control form-control-sm" name="cond_desc" value="{{ cond.cName }}" id="desc{{ loop.index }}" autocomplete="off" required></div>
+		<div class="col-sm-3 p-0"><select name="cond_tag" id="tag_list_{{ loop.index }}" class="form-control form-control-sm tag_list" data-idx="{{ loop.index }}" data-selitem="{{ cond.tag_id }}" required></select></div>
+		<div class="col-sm-2 pr-0 btn-group">
+			<button type="submit" class="btn btn-outline-success btn-sm float-right" name="btnSubmit" value="updateCond" data-container="body" data-toggle="tooltip" title="Save Changes"><span class="fa fa-save"></span></button>
+			<button type="submit" class="btn btn-outline-danger btn-sm float-right" name="btnSubmit" value="deleteCond" data-container="body" data-toggle="tooltip" title="Delete"><span class="fa fa-trash"></span></button>
+		</div>
+	  </div>
+  </form>
+{% endfor %}
+
+{% if show_pagination %}
+  {{ pagi(pagination, url_for_name) }}
+{% endif %}
+</main>
+{% endblock %}
+{% block page_script %}
+<script type="text/javascript">
+
+//create a map of all tags
+	const tag_map = new Map();
+  	{% for tag in tags %}
+      tag_map.set({{ tag.id }}, "{{ tag.tName }}");
+	{% endfor %}
+
+//.tag_list dropdown list
+  $('.tag_list').each(function(){
+	//let idx = article.dataset.idx;
+    var idx = $(this).data('idx');
+    var data = '<option value="">- Select Tag -</option>';  
+    //generate dropdown options
+	for(let [key, value] of tag_map){
+		data = data + '<option value="'+ key +'">'+ value +'</option>';
+	}
+    //populate dropdown with options
+    $('#tag_list_'+idx).html(data);
+    //add 'select' to selected options
+    $.sel_ids = $(this).data('selitem').toString().split(',');
+    $('#tag_list_'+idx).val($.sel_ids);
+  });
+
+</script>
+{% endblock %}
+

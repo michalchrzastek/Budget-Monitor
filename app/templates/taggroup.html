@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "pagination.html" import pagi with context %}
+
+{% block subnav1 %}
+<li class="nav-item active"><a class="nav-link" href="{{ url_for('overview', accountid=accountid) }}">Overview</a></li>
+	{% if cnt_new.cnt > 0 and page_name=='listAll' %}
+	<li class="nav-item active"><a class="nav-link" href="{{ url_for('listNew', accountid=accountid) }}">New</a></li>
+	{% endif %}
+	{% if page_name=='listNew' %}
+	<li class="nav-item active"><a class="nav-link" href="{{ url_for('listAll', accountid=accountid) }}">All</a></li>
+	{% endif %}
+{% endblock %}
+
+{% block app_content %}
+<main>
+	<form method="post">
+		<div class="row">
+			<label class="col-sm-7 badge badge-dark py-2">Tag Group Name</label>
+			<label class="col-sm-3 badge badge-dark py-2">Group Color</label>
+		</div>
+		<div class="row">
+			<div class="col-sm-7 p-0"><input type="text" class="form-control form-control-sm" name="group_desc" placeholder="Enter new..." autocomplete="off" required></div>
+      		<div class="col-sm-3 p-0"><input type="color" class="form-control form-control-sm" name="color" value="#0275d8"></div>
+			<div class="col-sm-2 pr-0"><button type="submit" name="btnSubmit" value="createGroup" class="btn btn-outline-primary btn-block btn-sm float-right"><span class="fa fa-plus"></span></button></div>
+		</div>
+	</form>
+
+{% if show_pagination %}
+	{{ pagi(pagination, url_for_name) }}
+{% else %}
+	<br><br>
+{% endif %}
+
+{% for tgrp in pagination.items %}
+	<form method="post">
+	<div class="row">
+	<input type="hidden" name="group_ID" value="{{ tgrp.id }}" id="id{{ loop.index }}" required>
+	<div class="col-sm-7 p-0"><input type="text" class="form-control form-control-sm" name="group_desc" value="{{ tgrp.gName }}" autocomplete="off" required></div>
+	<div class="col-sm-3 p-0"><input type="color" class="form-control form-control-sm" name="color" value="{{ tgrp.gColor }}"></div>
+	<div class="col-sm-2 pr-0 btn-group">
+		<button type="submit" class="btn btn-outline-success btn-sm float-right" name="btnSubmit" value="updateGroup" data-container="body" data-toggle="tooltip" title="Save Changes"><span class="fa fa-save"></span></button>
+		<button type="submit" class="btn btn-outline-danger btn-sm float-right" name="btnSubmit" value="deleteGroup" data-container="body" data-toggle="tooltip" title="Delete"><span class="fa fa-trash"></span></button>
+	</div>
+	</div>
+</form>
+{% endfor %}
+
+{% if show_pagination %}
+	{{ pagi(pagination, url_for_name) }}
+{% endif %}
+</main>
+{% endblock %}
+{% block page_script %}
+{% endblock %}
+

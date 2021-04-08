@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% from "pagination.html" import pagi with context %}
+
+{% block subnav1 %}
+<li class="nav-item active"><a class="nav-link" href="{{ url_for('overview', accountid=accountid) }}">Overview</a></li>
+	{% if cnt_new.cnt > 0 and page_name=='listAll' %}
+	<li class="nav-item active"><a class="nav-link" href="{{ url_for('listNew', accountid=accountid) }}">New</a></li>
+	{% endif %}
+	{% if page_name=='listNew' %}
+	<li class="nav-item active"><a class="nav-link" href="{{ url_for('listAll', accountid=accountid) }}">All</a></li>
+	{% endif %}
+{% endblock %}
+
+{% block app_content %}
+<main>
+	<form method="post">
+		<div class="row">
+			<label class="col-sm-3 badge badge-dark py-2">Tag Name</label>
+			<label class="col-sm-2 badge badge-dark py-2">Tag Group</label>
+      <label class="col-sm-1 badge badge-dark py-2">Balance</label>
+      <label class="col-sm-1 badge badge-dark py-2">Summary</label>
+			<label class="col-sm-1 badge badge-dark py-2">Chart1</label>
+			<label class="col-sm-1 badge badge-dark py-2">Chart2</label>
+			<label class="col-sm-1 badge badge-dark py-2">Chart3</label>
+		</div>
+		<div class="row">
+			<div class="col-sm-3 p-0"><input type="text" class="form-control form-control-sm" name="tag_desc" placeholder="Enter new..." autocomplete="off" required></div>
+      <div class="col-sm-2 p-0"><select name="tag_group" id="grp_list_00" class="form-control form-control-sm grp_list" data-idx="00" data-selitem="" required></select></div>
+      <div class="col-sm-1"><input type="checkbox" class="form-control ml-4" name="isBlnc" value="1"></div>
+      <div class="col-sm-1"><input type="checkbox" class="form-control ml-4" name="inSum" value="1"></div>
+      <div class="col-sm-1"><input type="checkbox" class="form-control ml-4" name="chart1" value="1"></div>
+      <div class="col-sm-1"><input type="checkbox" class="form-control ml-4" name="chart2" value=""></div>
+      <div class="col-sm-1"><input type="checkbox" class="form-control ml-4" name="chart3" value=""></div>
+			<div class="col-sm-2 pr-0"><button type="submit" name="btnSubmit" value="createTag" class="btn btn-outline-primary btn-block btn-sm float-right"><span class="fa fa-plus"></span></button></div>
+		</div>
+	</form>
+{% if show_pagination %}
+  {{ pagi(pagination, url_for_name) }}
+{% else %}
+	<br><br>
+{% endif %}
+
+{% for tag in pagination.items %}
+  <form method="post">
+    <div class="row">
+    <input type="hidden" name="tag_ID" value="{{ tag.id }}" id="id{{ loop.index }}" required>
+    <div class="col-sm-3 p-0"><input type="text" class="form-control form-control-sm" name="tag_desc" value="{{ tag.tName }}" autocomplete="off" required></div>
+    <div class="col-sm-2 p-0"><select name="tag_group" id="grp_list_{{ loop.index }}" class="form-control form-control-sm grp_list" data-idx="{{ loop.index }}" data-selitem="{{ tag.tgr_id }}" required></select></div>
+    <div class="col-sm-1"><input type="checkbox" class="form-control form-control-sm ml-4" name="isBlnc" value="1" {{ 'checked' if tag.isBlnc }}></div>
+    <div class="col-sm-1"><input type="checkbox" class="form-control form-control-sm ml-4" name="inSum" value="1" {{ 'checked' if tag.inSum }}></div>
+    <div class="col-sm-1"><input type="checkbox" class="form-control form-control-sm ml-4" name="chart1" value="1" {{ 'checked' if tag.chart1 }}></div>
+    <div class="col-sm-1"><input type="checkbox" class="form-control form-control-sm ml-4" name="chart2" value="1" {{ 'checked' if tag.chart2 }}></div>
+    <div class="col-sm-1"><input type="checkbox" class="form-control form-control-sm ml-4" name="chart3" value="1" {{ 'checked' if tag.chart3 }}></div>
+    <div class="col-sm-2 pr-0 btn-group">
+      <button type="submit" class="btn btn-outline-success btn-sm float-right" name="btnSubmit" value="updateTag" data-container="body" data-toggle="tooltip" title="Save Changes"><span class="fa fa-save"></span></button>
+      <button type="submit" class="btn btn-outline-danger btn-sm float-right" name="btnSubmit" value="deleteTag" data-container="body" data-toggle="tooltip" title="Delete"><span class="fa fa-trash"></span></button>
+    </div>
+    </div>
+  </form>
+{% endfor %}
+
+{% if show_pagination %}
+  {{ pagi(pagination, url_for_name) }}
+{% endif %}
+</main>
+{% endblock %}
+{% block page_script %}
+
+<script type="text/javascript">
+
+//create a map of all tags
+  const group_map = new Map();
+  {% for grp in groups %}
+    group_map.set({{ grp.id }}, "{{ grp.gName }}");
+  {% endfor %}
+
+//.tag_list dropdown list
+  $('.grp_list').each(function(){
+    var idx = $(this).data('idx');
+    var data = '<option value="">- Select Tag Group -</option>';  
+    //generate dropdown options
+    for(let [key, value] of group_map){
+	  	data = data + '<option value="'+ key +'">'+ value +'</option>';
+	  }
+    //populate dropdown with options
+    $('#grp_list_'+idx).html(data);
+    //add 'select' to selected options
+    $.sel_ids = $(this).data('selitem').toString().split(',');
+    $('#grp_list_'+idx).val($.sel_ids);
+  });
+
+</script>
+{% endblock %}
+
