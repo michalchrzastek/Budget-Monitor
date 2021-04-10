@@ -9,7 +9,7 @@ All banks I have expierienced with, produce the QIF file in exact same format, w
 This makes it easier to load a statement from multiple banks, in the same format.
 ie:
 In QIF file all transaciton amounts coming out are represented as negative (with preceding minus "-"). This is true across accounts (debit / credit).
-In CSV depending on bank and account (credit/debit), the transation amount is represented differently, hence the *.qif.
+In CSV depending on bank and account (credit/debit), the transation amount is represented differently, hence the *.qif preference over any other.
 
 ![alt text](https://github.com/michalchrzastek/Budget-Monitor/blob/master/img/microsoft_money_QIF.png)
 
