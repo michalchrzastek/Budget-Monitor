@@ -17,6 +17,9 @@ In CSV depending on bank and account (credit/debit), the transation amount is re
 ## Why?
 There is a number of budget monitor like apps, but appart of some requiring to register or to share personal and bank details, I just wanted to build my own :)
 
+## Plans for the future:
+Dependency on Bootstrap 4.5. Once version 5 is released, will update this app. This also links with removal of jQuery and elimination of FontAwesome in favour of default Bootstrap icons. Also dependency on Tempus-Dominus, (date picker) and BSMultiSelect (tag filter). All mentioned are used in the app via cdn.
+
 ## Instalation instructions (for Mac):
 Prerequisite: Python3.6 (minimum), check your version: python3 --version
 
