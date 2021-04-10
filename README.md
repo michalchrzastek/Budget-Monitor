@@ -50,7 +50,7 @@ pip3 install pandas
 SQLALCHEMY_DATABASE_URI
 UPLOAD_FOLDER
 ```
-6. Specify application dicrovery 
+6. Specify application discovery 
 ```
 export FLASK_APP=main.py
 ```
