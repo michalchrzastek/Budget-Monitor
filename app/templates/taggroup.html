@@ -33,16 +33,16 @@
 
 {% for tgrp in pagination.items %}
 	<form method="post">
-	<div class="row">
-	<input type="hidden" name="group_ID" value="{{ tgrp.id }}" id="id{{ loop.index }}" required>
-	<div class="col-sm-7 p-0"><input type="text" class="form-control form-control-sm" name="group_desc" value="{{ tgrp.gName }}" autocomplete="off" required></div>
-	<div class="col-sm-3 p-0"><input type="color" class="form-control form-control-sm" name="color" value="{{ tgrp.gColor }}"></div>
-	<div class="col-sm-2 pr-0 btn-group">
-		<button type="submit" class="btn btn-outline-success btn-sm float-right" name="btnSubmit" value="updateGroup" data-container="body" data-toggle="tooltip" title="Save Changes"><span class="fa fa-save"></span></button>
-		<button type="submit" class="btn btn-outline-danger btn-sm float-right" name="btnSubmit" value="deleteGroup" data-container="body" data-toggle="tooltip" title="Delete"><span class="fa fa-trash"></span></button>
-	</div>
-	</div>
-</form>
+		<div class="row">
+		<input type="hidden" name="group_ID" value="{{ tgrp.id }}" id="id{{ loop.index }}" required>
+		<div class="col-sm-7 p-0"><input type="text" class="form-control form-control-sm" name="group_desc" value="{{ tgrp.gName }}" autocomplete="off" required></div>
+		<div class="col-sm-3 p-0"><input type="color" class="form-control form-control-sm" name="color" value="{{ tgrp.gColor }}"></div>
+		<div class="col-sm-2 pr-0 btn-group">
+			<button type="submit" class="btn btn-outline-success btn-sm float-right" name="btnSubmit" value="updateGroup" data-container="body" data-toggle="tooltip" title="Save Changes"><span class="fa fa-save"></span></button>
+			<button type="submit" class="btn btn-outline-danger btn-sm float-right" name="btnSubmit" value="deleteGroup" data-container="body" data-toggle="tooltip" title="Delete"><span class="fa fa-trash"></span></button>
+		</div>
+		</div>
+	</form>
 {% endfor %}
 
 {% if show_pagination %}

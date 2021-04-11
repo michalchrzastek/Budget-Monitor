@@ -6,8 +6,8 @@
 {% block app_content %}
 <div class="card-deck">
 {% for account in accounts %}
-<div class="card text-white bg-dark mb-3" style="max-width: 18rem;">
-  <div class="card-header">{{ account.accName }}</div>
+<div class="card text-white bg-dark mb-3" style="max-width:18rem;min-width:14rem;">
+  <div class="card-header">{{ account.accName }}<button type="button" onclick="deleteAcc({{ account.id }})" class="btn btn-sm btn-outline-warning float-right"><span class="fa fa-trash"></span></button></div>
   <div class="card-body">
     <h5 class="card-title">{% if account.balance %}Balance: £{{ account.balance|int }}{% endif %}&nbsp;</h5>
     <p class="card-text">Last Upload: {{ account.upldate }}</p>
@@ -16,7 +16,43 @@
 </div>
 {% endfor %}
 </div>
+
+<div class="modal" tabindex="-1" role="dialog" id="modal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-danger">
+        <h5 class="modal-title text-light">Confirm Delete</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="modalbody">
+        <p>Are you sure you want to delete this account and all associated data?</p>
+        <p class="text-danger"><b>This cannot be reversed!</b></p>
+        <form method="post">
+          <input name="del_acc" type="number" id="del_acc_id" class="d-none" required>
+          <button type="submit" name="action" value="deleteAccount" class="btn btn-danger mt-5">Delete</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
+{% block page_script %}
+<script>
+//show Account delete modal
+  function deleteAcc(accid){
+    $('#modal').modal('show');
+    document.getElementById("del_acc_id").value = accid;
+  }
+</script>
+{% endblock %}
+
+
 
 
 

@@ -27,6 +27,8 @@
 
 {% if show_pagination %}
 	{{ pagi(pagination, url_for_name) }}
+{% else %}
+	<br><br>
 {% endif %}
 
 {% for desc in pagination.items %}
