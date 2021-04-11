@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import pandas as pd
 import flask
-from sqlalchemy import extract, asc, desc, func, text, column, case
+from sqlalchemy import extract, asc, desc, func, column, case, text
 from app import db, app
 
 today = datetime.today()
@@ -13,7 +13,11 @@ minus_13_months = (first_of_this_month - timedelta(days=390)).replace(day=1)
 class Account(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	accName = db.Column(db.String, unique=True, nullable=False)
-	#transactions = db.relationship('Transaction', backref=db.backref('trans', lazy=True))
+	#transactions = db.relationship('Transaction', backref=db.backref('Account', single_parent=True, cascade='delete, delete-orphan'))
+	transactions = db.relationship("Transaction", back_populates="account", cascade="all, delete", passive_deletes=True)
+	taggroups = db.relationship('Taggroup', back_populates="account", cascade="all, delete", passive_deletes=True)
+	conditions = db.relationship('Condition', back_populates="account", cascade="all, delete", passive_deletes=True)
+	descriptions = db.relationship('Description', back_populates="account", cascade="all, delete", passive_deletes=True)
 
 	def __repr__(self):
 		return '<Account {}>'.format(self.accName)
@@ -23,8 +27,18 @@ class Account(db.Model):
 		db.session.add(stmt)
 		db.session.commit()
 
-	def one_acc(accountid):
-		return Account.query.filter_by(id = accountid).first()
+	def one_acc(account_id):
+		return Account.query.filter_by(id = account_id).first()
+
+	def delete_account(account_id):
+		#PRAGMA... https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#sqlite-foreign-keys
+		cursor = db.session.execute(text("PRAGMA foreign_keys=ON")).cursor
+		q = db.session.query(Account).filter(Account.id==account_id).first()
+		db.session.delete(q)
+		db.session.commit()
+	
+	def list_newest():
+		return db.session.query(func.max(Account.id).label('lastid')).scalar()
 
 	def list_acc():
 		cte = db.session.query(Transaction.acc_id\
@@ -47,10 +61,11 @@ class Transaction(db.Model):
 	amount = db.Column(db.Float, nullable=False)
 	desc = db.Column(db.String, nullable=False)
 	card = db.Column(db.String(1), nullable=False)
-	tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'), nullable=True)
-	acc_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
+	tag_id = db.Column(db.Integer, db.ForeignKey('tag.id', ondelete='CASCADE'), nullable=True)
+	acc_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'))
 	uplDate = db.Column(db.DateTime, nullable=False, default=datetime.now)
 	confirmed = db.Column(db.Boolean, nullable=True, default=False)
+	account = db.relationship('Account', back_populates='transactions')
 
 	def __repr__(self):
 		return '<Transaction {}>'.format(self.desc)
@@ -351,7 +366,10 @@ class Taggroup(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	gName = db.Column(db.String, nullable=False)
 	gColor = db.Column(db.String(11), nullable=False)
-	acc_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
+	acc_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'), nullable=True)
+	#tags = db.relationship('Tag', backref=db.backref('Taggroup', single_parent=True, cascade='delete, delete-orphan'))
+	account = db.relationship('Account', back_populates='taggroups')
+	tags = db.relationship('Tag', back_populates="taggroup", cascade="all, delete", passive_deletes=True)
 
 	def __repr__(self):
 		return '<TagGroup {}>'.format(self.gName)
@@ -381,7 +399,7 @@ class Taggroup(db.Model):
 		return [val for val, in q]
 
 	def list_tgroup_id_one(account_id):
-		return db.session.query(Taggroup.id).filter(Taggroup.acc_id==account_id).order_by(Taggroup.id.desc()).first()
+		return db.session.query(func.max(Taggroup.id).label('id')).filter(Taggroup.acc_id==account_id).scalar()
 
 	def list_count(account_id):
 		return db.session.query(db.func.count(Taggroup.id)).filter(Taggroup.acc_id==account_id).scalar()
@@ -396,12 +414,13 @@ class Taggroup(db.Model):
 class Tag(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	tName = db.Column(db.String, nullable=False)
-	tgr_id = db.Column(db.Integer, db.ForeignKey('taggroup.id'), nullable=False)
+	tgr_id = db.Column(db.Integer, db.ForeignKey('taggroup.id', ondelete='CASCADE'), nullable=True)
 	isBlnc = db.Column(db.Boolean, nullable=False, default=0)
 	inSum = db.Column(db.Boolean, nullable=False, default=1)
 	chart1 = db.Column(db.Boolean, nullable=False, default=0)
 	chart2 = db.Column(db.Boolean, nullable=False, default=0)
 	chart3 = db.Column(db.Boolean, nullable=False, default=0)
+	taggroup = db.relationship('Taggroup', back_populates='tags')
 
 	def __repr__(self):
 		return '<Tag {}>'.format(self.tName)
@@ -459,8 +478,9 @@ class Tag(db.Model):
 class Condition(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	cName = db.Column(db.String, nullable=False)
-	tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'), nullable=False)
-	acc_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
+	tag_id = db.Column(db.Integer, db.ForeignKey('tag.id', ondelete='CASCADE'), nullable=False)
+	acc_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'), nullable=True)
+	account = db.relationship('Account', back_populates='conditions')
 
 	def __repr__(self):
 		return '<Condition {}>'.format(self.cName)
@@ -494,7 +514,8 @@ class Description(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	descfrom = db.Column(db.String, nullable=False)
 	descto = db.Column(db.String, nullable=True)
-	acc_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
+	acc_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'), nullable=True)
+	account = db.relationship('Account', back_populates='descriptions')
 
 	def __repr__(self):
 		return '<Condition {}>'.format(self.descfrom)

@@ -14,9 +14,18 @@ def index():
 	session['filter_to'] = None
 	session['filter_tag'] = None
 	if request.method=='POST' and request.form['action']=='addAccount':
-		newAccName=request.form['accName']
+		newAccName = request.form['accName']
 		Account.create_one(newAccName)
+		accountid = Account.list_newest()
+		Taggroup.insert_tag_group('New Tag Group - EDIT THIS', '#000000', accountid)
+		last_group_id = Taggroup.list_tgroup_id_one(accountid)
+		Tag.insert_tag('New Tag - EDIT THIS', last_group_id, 0,1,0,0,0)
 		flash('New Account Created','success')
+		return redirect(url_for('index'))
+	elif request.method=='POST' and request.form['action']=='deleteAccount':
+		accid = request.form['del_acc']
+		Account.delete_account(accid)
+		flash('The Account Has Been Deleted','success')
 		return redirect(url_for('index'))
 	else:
 		return render_template("/index.html",**templateData)
@@ -29,7 +38,7 @@ def overview(accountid):
 		def allowed_file(filename):
 			return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-		card=request.form['card']
+		card = request.form['card']
 		file = request.files['file']
 		if file and not allowed_file(file.filename):
 			flash('This file type is not accepted, must be a *.qif statement', 'warning')
@@ -179,32 +188,32 @@ def summary(accountid,table,what_year):
 @app.route("/listAll/<accountid>", methods=['GET','POST'])
 def listAll(accountid):
 	if request.method=='POST' and request.form['btnSubmit']=='updateTrans':
-		t_id=request.form['trans_ID']
-		t_date=request.form['trans_date']
-		t_desc=request.form['trans_desc']
-		t_amount=request.form['trans_amnt']
-		t_tag=request.form['trans_tag']
+		t_id = request.form['trans_ID']
+		t_date = request.form['trans_date']
+		t_desc = request.form['trans_desc']
+		t_amount = request.form['trans_amnt']
+		t_tag = request.form['trans_tag']
 		Transaction.update_trans(t_id, t_date, t_amount, t_desc, t_tag)
 		flash('Transaction updated.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='insertTrans':
-		t_id=request.form['trans_ID']
-		t_date=request.form['trans_date']
-		t_desc=request.form['trans_desc']
-		t_amount=request.form['trans_amnt']
-		t_amountprev=request.form.get('prevAmount')
-		t_tag=request.form['trans_tag']
-		t_adjust=request.form.get('adjust') != None
+		t_id = request.form['trans_ID']
+		t_date = request.form['trans_date']
+		t_desc = request.form['trans_desc']
+		t_amount = request.form['trans_amnt']
+		t_amountprev = request.form.get('prevAmount')
+		t_tag = request.form['trans_tag']
+		t_adjust = request.form.get('adjust') != None
 		Transaction.create_one(t_date, t_amount, t_desc, t_tag, accountid, 'M', 1)
 		if t_adjust==True:
 			Transaction.update_trans_amount(t_id, t_amountprev)
 		flash('New transaction created.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createCondition':
-		t_desc=request.form['trans_desc']
-		t_tag=request.form['trans_tag']
+		t_desc = request.form['trans_desc']
+		t_tag = request.form['trans_tag']
 		Condition.insert_cond(t_desc,t_tag,accountid)
 		flash('New condition created.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteTrans':
-		t_id=request.form['trans_ID']
+		t_id = request.form['trans_ID']
 		Transaction.delete_trans(t_id)
 		flash('Transaction deleted.','warning')
 
@@ -234,32 +243,32 @@ def listAll(accountid):
 @app.route("/listNew/<accountid>", methods=['GET','POST'])
 def listNew(accountid):
 	if request.method=='POST' and request.form['btnSubmit']=='updateTrans':
-		t_id=request.form['trans_ID']
-		t_date=request.form['trans_date']
-		t_desc=request.form['trans_desc']
-		t_amount=request.form['trans_amnt']
-		t_tag=request.form['trans_tag']
+		t_id = request.form['trans_ID']
+		t_date = request.form['trans_date']
+		t_desc = request.form['trans_desc']
+		t_amount = request.form['trans_amnt']
+		t_tag = request.form['trans_tag']
 		Transaction.update_trans(t_id, t_date, t_amount, t_desc, t_tag)
 		flash('Transaction updated.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='insertTrans':
-		t_id=request.form['trans_ID']
-		t_date=request.form['trans_date']
-		t_desc=request.form['trans_desc']
-		t_amount=request.form['trans_amnt']
-		t_amountprev=request.form.get('prevAmount')
-		t_tag=request.form['trans_tag']
-		t_adjust=request.form.get('adjust') != None
+		t_id = request.form['trans_ID']
+		t_date = request.form['trans_date']
+		t_desc = request.form['trans_desc']
+		t_amount = request.form['trans_amnt']
+		t_amountprev = request.form.get('prevAmount')
+		t_tag = request.form['trans_tag']
+		t_adjust = request.form.get('adjust') != None
 		Transaction.create_one(t_date, t_amount, t_desc, t_tag, accountid, 'M', 1)
 		if t_adjust==True:
 			Transaction.update_trans_amount(t_id, t_amountprev)
 		flash('New transaction created.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createCondition':
-		t_desc=request.form['trans_desc']
-		t_tag=request.form['trans_tag']
+		t_desc = request.form['trans_desc']
+		t_tag = request.form['trans_tag']
 		Condition.insert_cond(t_desc,t_tag,accountid)
 		flash('New condition created.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteTrans':
-		t_id=request.form['trans_ID']
+		t_id = request.form['trans_ID']
 		Transaction.delete_trans(t_id)
 		flash('Transaction deleted.','warning')
 	
@@ -321,18 +330,18 @@ def prefilter(accountid):
 @app.route("/condition/<accountid>", methods=['GET','POST'])
 def condition(accountid):
 	if request.method=='POST' and request.form['btnSubmit']=='updateCond':
-		c_id=request.form['cond_ID']
-		c_desc=request.form['cond_desc']
-		c_tag=request.form['cond_tag']
+		c_id = request.form['cond_ID']
+		c_desc = request.form['cond_desc']
+		c_tag = request.form['cond_tag']
 		Condition.update_cond(c_id, c_desc, c_tag)
 		flash('Condition updated.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createCond':
-		c_desc=request.form['cond_desc']
-		c_tag=request.form['cond_tag']
+		c_desc = request.form['cond_desc']
+		c_tag = request.form['cond_tag']
 		Condition.insert_cond(c_desc,c_tag,accountid)
 		flash('New condition created.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteCond':
-		c_id=request.form['cond_ID']
+		c_id = request.form['cond_ID']
 		Condition.delete_cond(c_id)
 		flash('Condition deleted.','warning')
 	
@@ -356,23 +365,23 @@ def condition(accountid):
 @app.route("/description/<accountid>", methods=['GET','POST'])
 def description(accountid):
 	if request.method=='POST' and request.form['btnSubmit']=='updateDesc':
-		id=request.form['ID']
-		descfrom=request.form['descfrom']
-		descto=request.form.get('descto')
+		id = request.form['ID']
+		descfrom = request.form['descfrom']
+		descto = request.form.get('descto')
 		Description.update_desc(id, descfrom, descto)
 		flash('Description updated.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createDesc':
-		descfrom=request.form['descfrom']
-		descto=request.form.get('descto')
+		descfrom = request.form['descfrom']
+		descto = request.form.get('descto')
 		Description.insert_desc(descfrom, descto, accountid)
 		flash('New description created.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='applyDesc':
-		descfrom=request.form['descfrom']
-		descto=request.form.get('descto')
+		descfrom = request.form['descfrom']
+		descto = request.form.get('descto')
 		Transaction.update_desc(accountid, descfrom, descto)
 		flash('Matching Text Replaced.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteDesc':
-		id=request.form['ID']
+		id = request.form['ID']
 		Description.delete_desc(id)
 		flash('Description deleted.','warning')
 	
@@ -395,20 +404,20 @@ def description(accountid):
 @app.route("/taggroup/<accountid>", methods=['GET','POST'])
 def taggroup(accountid):
 	if request.method=='POST' and request.form['btnSubmit']=='updateGroup':
-		g_id=request.form['group_ID']
-		g_desc=request.form['group_desc']
-		g_col=request.form['color']
+		g_id = request.form['group_ID']
+		g_desc = request.form['group_desc']
+		g_col = request.form['color']
 		Taggroup.update_tag_group(g_id, g_desc, g_col)
 		flash('Group updated.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createGroup':
-		g_desc=request.form['group_desc']
-		g_col=request.form['color']
+		g_desc = request.form['group_desc']
+		g_col = request.form['color']
 		Taggroup.insert_tag_group(g_desc, g_col, accountid)
 		last_id = Taggroup.list_tgroup_id_one(accountid)
 		Tag.insert_tag(g_desc, last_id, 0,True,0,0,0 )
 		flash('New group created. New tag created','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteGroup':
-		g_id=request.form['group_ID']
+		g_id = request.form['group_ID']
 		Taggroup.delete_tag_group(g_id)
 		flash('Group deleted.','warning')
 	
@@ -431,28 +440,28 @@ def taggroup(accountid):
 @app.route("/tag/<accountid>", methods=['GET','POST'])
 def tag(accountid):
 	if request.method=='POST' and request.form['btnSubmit']=='updateTag':
-		t_id=request.form['tag_ID']
-		t_desc=request.form['tag_desc']
-		t_group=request.form['tag_group']
-		t_bal=request.form.get('isBlnc') != None
-		t_sum=request.form.get('inSum') != None
-		t_c1=request.form.get('chart1') != None
-		t_c2=request.form.get('chart2') != None
-		t_c3=request.form.get('chart3') != None
+		t_id = request.form['tag_ID']
+		t_desc = request.form['tag_desc']
+		t_group = request.form['tag_group']
+		t_bal = request.form.get('isBlnc') != None
+		t_sum = request.form.get('inSum') != None
+		t_c1 = request.form.get('chart1') != None
+		t_c2 = request.form.get('chart2') != None
+		t_c3 = request.form.get('chart3') != None
 		Tag.update_tag(t_id, t_desc, t_group, t_bal, t_sum, t_c1, t_c2, t_c3)
 		flash('Tag updated.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createTag':
-		t_desc=request.form['tag_desc']
-		t_group=request.form['tag_group']
-		t_bal=request.form.get('isBlnc') != None
-		t_sum=request.form.get('inSum') != None
-		t_c1=request.form.get('chart1') != None
-		t_c2=request.form.get('chart2') != None
-		t_c3=request.form.get('chart3') != None
+		t_desc = request.form['tag_desc']
+		t_group = request.form['tag_group']
+		t_bal = request.form.get('isBlnc') != None
+		t_sum = request.form.get('inSum') != None
+		t_c1 = request.form.get('chart1') != None
+		t_c2 = request.form.get('chart2') != None
+		t_c3 = request.form.get('chart3') != None
 		Tag.insert_tag(t_desc, t_group, t_bal, t_sum, t_c1, t_c2, t_c3)
 		flash('New tag created.','success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteTag':
-		t_id=request.form['tag_ID']
+		t_id = request.form['tag_ID']
 		Tag.delete_tag(t_id)
 		flash('Tag deleted.','warning')
 	
