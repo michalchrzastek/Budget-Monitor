@@ -1,0 +1,9 @@
+# ignore user db
+budgetmonitor.db
+
+# ignore venv folders
+__pycache__
+bm
+
+# macOS file
+.DS_Store

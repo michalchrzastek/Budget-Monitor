@@ -1,11 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import pandas as pd
 import flask
 from sqlalchemy import extract, asc, desc, func, column, case, text
 from app import db, app
 
-today = datetime.today()
-first_of_this_month = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+today = date.today()
+first_of_this_month = today.replace(day=1)
 last_of_prev_month = first_of_this_month - timedelta(days=1)
 first_of_prev_month = last_of_prev_month.replace(day=1)
 minus_13_months = (first_of_this_month - timedelta(days=390)).replace(day=1)
@@ -227,7 +227,7 @@ class Transaction(db.Model):
 	def get_statsDate(what_year):
 		gd = Transaction.get_dates(what_year)
 		fopm = first_of_prev_month.replace(year=int(gd[2]))
-		lopm = last_of_prev_month.replace(year=int(gd[2]))
+		lopm = last_of_prev_month.replace(year=int(gd[2])) #, hour=23, minute=59, second=59 )
 		return [str(gd[1])+'-01-01', str(gd[1])+'-12-31', str(gd[0])+'-01-01', str(gd[0])+'-12-31', str(fopm), str(lopm)]
 
 	def get_stat_year(account_id, what_year):
