@@ -13,7 +13,6 @@ minus_13_months = (first_of_this_month - timedelta(days=390)).replace(day=1)
 class Account(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 	accName = db.Column(db.String, unique=True, nullable=False)
-	#transactions = db.relationship('Transaction', backref=db.backref('Account', single_parent=True, cascade='delete, delete-orphan'))
 	transactions = db.relationship("Transaction", back_populates="account", cascade="all, delete", passive_deletes=True)
 	taggroups = db.relationship('Taggroup', back_populates="account", cascade="all, delete", passive_deletes=True)
 	conditions = db.relationship('Condition', back_populates="account", cascade="all, delete", passive_deletes=True)
@@ -367,7 +366,6 @@ class Taggroup(db.Model):
 	gName = db.Column(db.String, nullable=False)
 	gColor = db.Column(db.String(11), nullable=False)
 	acc_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'), nullable=True)
-	#tags = db.relationship('Tag', backref=db.backref('Taggroup', single_parent=True, cascade='delete, delete-orphan'))
 	account = db.relationship('Account', back_populates='taggroups')
 	tags = db.relationship('Tag', back_populates="taggroup", cascade="all, delete", passive_deletes=True)
 
