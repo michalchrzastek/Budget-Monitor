@@ -40,9 +40,10 @@ class Account(db.Model):
 		return db.session.query(func.max(Account.id).label('lastid')).scalar()
 
 	def list_acc():
-		cte = db.session.query(Transaction.acc_id\
-								,Transaction.amount.label('balance')\
-								,func.row_number().over(partition_by=Transaction.acc_id, order_by=desc(Transaction.traDate)).label("rn"))\
+		cte = db.session.query(\
+							Transaction.acc_id\
+							,Transaction.amount.label('balance')\
+							,func.row_number().over(partition_by=Transaction.acc_id, order_by=desc(Transaction.traDate)).label("rn"))\
 						.outerjoin(Tag)\
 						.filter(Tag.isBlnc==1)\
 						.cte()
