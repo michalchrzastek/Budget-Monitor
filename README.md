@@ -38,14 +38,14 @@ cd Budget-Monitor
 python3 -m venv bm
 . bm/bin/activate
 ```
-> Notice **(venv)** at the start of each line in terminal, which indicates that you are working inside the virtual environment.
+> Notice **(bm)** at the start of each line in terminal, which indicates that you are working inside the virtual environment.
 
-4. Install Flask within the venv
+4. Install Flask within the (bm) venv
 ```
 pip3 install Flask
-pip3 insatll Flask-SQLAlchemy
+pip3 install Flask-SQLAlchemy
 ```
-4. Install Pandas within the venv
+5. Install Pandas within the (bm) venv
 ```
 pip3 install pandas
 ```
@@ -63,15 +63,15 @@ Then **CTRL + X**, to close and **Y** to confirm changes, then hit **ENTER**
 ```
 export FLASK_APP=main.py
 ```
-7. Start the Flask app with this command:
+8. Start the Flask app with this command:
 ```
 flask run
 ```
-8. Open a web browser and enter:
+9. Open a web browser and enter:
 ```
 localhost:5000
 ```
-9. PLAY :)
+10. PLAY :)
 
 
 To Close the app and VENV
