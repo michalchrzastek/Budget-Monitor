@@ -49,7 +49,7 @@ pip3 install Flask-SQLAlchemy
 ```
 pip3 install pandas
 ```
-5. [optional] Edit config.py, update location and upload folder paths
+6. [optional] Edit config.py, update location and upload folder paths
 ```
 nano config.py
 ```
@@ -59,7 +59,8 @@ SQLALCHEMY_DATABASE_URI
 UPLOAD_FOLDER
 ```
 Then **CTRL + X**, to close and **Y** to confirm changes, then hit **ENTER**
-6. Specify application discovery 
+
+7. Specify application discovery 
 ```
 export FLASK_APP=main.py
 ```
