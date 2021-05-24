@@ -207,7 +207,7 @@ class Transaction(db.Model):
 		return m
 
 	def get_dates(what_year_):
-		print("{what_year_}")
+		print(what_year_)
 		print(type(what_year_))
 		what_year = int(what_year_) if type(what_year_) != None else today.year
 		prev_year = what_year - 1
