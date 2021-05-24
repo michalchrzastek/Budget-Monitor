@@ -17,7 +17,9 @@ python3 -m venv bm
 
 echo ""
 echo "Installing Flask, Flask-SQLAlchemy and Pandas..."
-pip3 install Flask && Flask-SQLAlchemy && pandas
+pip3 install Flask
+pip3 install Flask-SQLAlchemy
+pip3 install pandas
 
 echo ""
 echo "Application discovery..."
