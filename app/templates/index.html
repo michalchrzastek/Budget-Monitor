@@ -10,7 +10,7 @@
   <div class="card-header">{{ account.accName }}<button type="button" onclick="deleteAcc({{ account.id }})" class="btn btn-sm btn-outline-warning float-right"><span class="fa fa-trash"></span></button></div>
   <div class="card-body">
     <h5 class="card-title">{% if account.balance %}Balance: £{{ account.balance|int }}{% endif %}&nbsp;</h5>
-    <p class="card-text">Last Upload: {{ account.upldate }}</p>
+    <p class="card-text">Last Upload: {{ account.upldate | replace("None","Never")}}</p>
     <a href="{{ url_for('overview', accountid=account.id) }}" class="btn btn-primary">View</a>
   </div>
 </div>

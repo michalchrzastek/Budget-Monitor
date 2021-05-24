@@ -56,7 +56,7 @@ def overview(accountid):
 			for desc in descriptions:
 				desc_dict[desc.descfrom] = desc.descto
 
-			data_file = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+			data_file = os.path.join(app.config['DOWNLOADED_STATEMENT'], file.filename)
 			with open(data_file, mode='r', encoding = "ISO-8859-1") as fr:
 				data = fr.read()
 				#cleanse data and combine into 1 line per transaction
