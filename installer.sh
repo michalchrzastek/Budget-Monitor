@@ -12,8 +12,8 @@ echo "$pipv"
 echo ""
 echo "Installing Virtual Environment..."
 pip3 install virtualenv
-$(python3 -m venv bm)
-$(. bm/bin/activate)
+python3 -m venv bm
+source "./bm/bin/activate"
 
 echo ""
 echo "Installing Flask, Flask-SQLAlchemy and Pandas..."
