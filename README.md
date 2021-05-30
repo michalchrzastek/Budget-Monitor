@@ -24,59 +24,30 @@ Dependency on Bootstrap 4.5. Once version 5 is released, will update this app. T
 ## Installation instructions (for Mac):
 Prerequisite: Python3.6 (minimum), check your version: python3 --version
 
-1. Install Virtual Environment for Python3, might require sudo
-```
-pip3 install virtualenv
-```
+1. Open Terminal, navigate to desired location, ie [Dowlnoads] or [Documents]
+
 2. Download this repo
 ```
 git clone https://github.com/michalchrzastek/Budget-Monitor
 ```
-3. Go in and activate virtual environment
+3. Go in and use the installer script
 ```
 cd Budget-Monitor
-python3 -m venv bm
-. bm/bin/activate
+./installer.sh
 ```
-> Notice **(bm)** at the start of each line in terminal, which indicates that you are working inside the virtual environment.
-
-4. Install Flask within the (bm) venv
-```
-pip3 install Flask
-pip3 install Flask-SQLAlchemy
-```
-5. Install Pandas within the (bm) venv
-```
-pip3 install pandas
-```
-6. [optional] Edit config.py, update location and upload folder paths
-```
-nano config.py
-```
-Change path to database and statement location
-```
-SQLALCHEMY_DATABASE_URI
-UPLOAD_FOLDER
-```
-Then **CTRL + X**, to close and **Y** to confirm changes, then hit **ENTER**
-
-7. Specify application discovery 
-```
-export FLASK_APP=main.py
-```
-8. Start the Flask app with this command:
-```
-flask run
-```
-9. Open a web browser and enter:
+4. Open a web browser and enter:
 ```
 localhost:5000
 ```
-10. PLAY :)
 
 
-To Close the app and VENV
+> NOTES
+If you close the Terminal, this will terminate the virtual environment session. To start the application next time use the start.sh script
 ```
-CTRL + C
-deactivate
+cd Budget-Monitor
+./start.sh
+```
+Then open a web browser
+```
+localhost:5000
 ```
