@@ -11,7 +11,7 @@ echo "$pipv"
 
 echo ""
 echo "Installing Virtual Environment..."
-pip3 install virtualenv
+pip3 install virtualenv --user
 python3 -m venv bm
 source "./bm/bin/activate"
 

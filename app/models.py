@@ -40,7 +40,7 @@ class Account(db.Model):
 		return db.session.query(func.max(Account.id).label('lastid')).scalar()
 
 	def list_acc():
-		cte = db.session.query(\
+		"""cte = db.session.query(\
 							Transaction.acc_id\
 							,Transaction.amount.label('balance')\
 							,func.row_number().over(partition_by=Transaction.acc_id, order_by=desc(Transaction.traDate)).label("rn"))\
@@ -53,7 +53,8 @@ class Account(db.Model):
 			.group_by(Account.id, Account.accName)\
 			.subquery()
 		return db.session.query(q2.c.id, q2.c.accName, q2.c.upldate, q1.c.balance)\
-			.outerjoin(q1, q2.c.id == q1.c.acc_id)
+			.outerjoin(q1, q2.c.id == q1.c.acc_id)"""
+		return db.session.query(Account.id, Account.accName)
 
 class Transaction(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -149,9 +150,10 @@ class Transaction(db.Model):
 			.distinct().count()
 
 	def max_year(account_id):
-		return Transaction.query\
+		q = Transaction.query\
 				.with_entities(extract('year',func.max(Transaction.traDate).label('max_year')))\
 				.filter(Transaction.acc_id == account_id).scalar()
+		return q if q != None else today.year
 
 	def list_year(account_id):
 		return db.session.query(extract('year',Transaction.traDate).label('year'))\
