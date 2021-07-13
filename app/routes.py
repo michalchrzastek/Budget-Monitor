@@ -2,7 +2,7 @@ from datetime import datetime
 from app import app, db
 from flask import render_template, request, redirect, session, flash, url_for, jsonify
 from app.models import Account, Transaction, Taggroup, Tag, Condition, Description
-import os
+import os,re
 
 ##----------------------------------------------------------------------------------------------------Index Page
 @app.route('/', methods=['GET', 'POST'])
@@ -62,9 +62,11 @@ def overview(accountid):
 				#cleanse data and combine into 1 line per transaction
 				data = data.replace("\nT",";")									#remove line break with 'T' and seprate with comma
 				data = data.replace("\nP",";")									#remove line break with 'P' and separate with comma
-				data = data.replace("\nM** "," **")								#remove line break with 'M' and join to the transaction description
+				#data = data.replace("\nM** "," **")							#remove line break with 'M' and join to the transaction description
 				data = data.replace("\n^","")									#remove blank lines
 				data = data.replace("&amp;"," and ")							#replace ampersand symbol to text
+				data = re.sub("\nN\d{8}","",data)								#remove line break with 'N'
+				data = re.sub("\nM.+|\nM","",data)								#remove line break with 'M'
 				data_list = data.split("\nD")									#string into list
 				transTag = None
 				trans_inserted = 0
