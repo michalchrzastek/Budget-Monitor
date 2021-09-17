@@ -325,7 +325,7 @@ def filter(accountid,page_name='listAll'):
 def prefilter(accountid):
 	session['filter_from'] = request.args.get('datefrom') if request.args.get('datefrom')!=None else None
 	session['filter_to'] = request.args.get('dateto') if request.args.get('dateto')!=None else None
-	session['filter_tag'] = Tag.list_tag_id_of_group(request.args.get('taggroup'), accountid) if request.args.get('taggroup')!=None else None
+	session['filter_tag'] = Tag.list_tag_id_of_group(request.args.get('taggroup'), accountid) if request.args.get('taggroup') not in [None,'0'] else None
 	return redirect(url_for('listAll', accountid=accountid))
 
 ##----------------------------------------------------------------------------------------------------Condition Page
