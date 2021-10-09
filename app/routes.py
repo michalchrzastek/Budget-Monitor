@@ -127,7 +127,6 @@ def overview(accountid):
 			'chart1_data' : Transaction.chart_data(accountid, 'chart1', app.config['CHART_1_MONTH_COUNT']),
 			'chart2_data' : Transaction.chart_data(accountid, 'chart2', app.config['CHART_2_MONTH_COUNT']),
 			'chart3_data' : Transaction.chart_data(accountid, 'chart3', app.config['CHART_3_MONTH_COUNT']),
-			'chart_in_out' : Transaction.chart_in_out(accountid),
 			'chart_monthly_trend' : Transaction.chart_monthly_trend(accountid),
 			'chart_avg_month_height' : chart_hight,
 			'chart_avg_month' : Transaction.get_stat_year(accountid, selected_year)

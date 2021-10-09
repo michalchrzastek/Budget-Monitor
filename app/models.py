@@ -302,23 +302,8 @@ class Transaction(db.Model):
 		#change FLOAT values to INT
 		return df.fillna(0).astype(int)
 
-	def chart_in_out(account_id):
-		sum_in  = Transaction.query.with_entities(func.ABS(func.SUM(Transaction.amount)))\
-				.outerjoin(Tag)\
-				.filter(Transaction.acc_id == account_id, Transaction.amount > 0 \
-					, Tag.isBlnc == 0 \
-					, Transaction.traDate>=first_of_prev_month, Transaction.traDate<first_of_this_month)\
-				.scalar()
-		sum_out = Transaction.query.with_entities(func.ABS(func.SUM(Transaction.amount)))\
-				.outerjoin(Tag)\
-				.filter(Transaction.acc_id == account_id, Transaction.amount < 0 \
-					, Tag.isBlnc == 0 \
-					, Transaction.traDate>=first_of_prev_month, Transaction.traDate<first_of_this_month)\
-				.scalar()
-		return sum_in if sum_in is not None else 0, sum_out if sum_out is not None else 0
-
 	def chart_monthly_trend(account_id):
-		tag_inSum = Tag.list_tag_id_inSum(account_id)
+		tags_id = Tag.list_tag_id_notBlnc(account_id)
 		case_expr = case([
 					(func.strftime('%m',Transaction.traDate) == '01', 'Jan')
 				,],
@@ -326,7 +311,8 @@ class Transaction(db.Model):
 		month_by_month = db.session.query(\
 							func.strftime('%Y%m',Transaction.traDate).label('orderByCol')\
 							,func.strftime('%m',Transaction.traDate).label('mnth')\
-							,func.SUM(Transaction.amount).label('total')\
+							,func.SUM(case([(Transaction.amount > 0,Transaction.amount)], else_ = 0)).label('sum_in')\
+							,func.ABS(func.SUM(case([(Transaction.amount < 0,Transaction.amount)], else_ = 0))).label('sum_out')\
 							,column('Dummy')\
 							,case([
 								(func.strftime('%m',Transaction.traDate) == '01', 'Jan'),
@@ -344,22 +330,25 @@ class Transaction(db.Model):
 								],
         						else_ = func.strftime('%m',Transaction.traDate)).label("mmm")
 							)\
-							.filter(Transaction.tag_id.in_(tag_inSum), Transaction.traDate>=minus_13_months, Transaction.traDate<first_of_this_month)\
-							.group_by(func.strftime('%Y%m',Transaction.traDate),func.strftime('%m',Transaction.traDate),column('Dummy'))\
+							.filter(Transaction.tag_id.in_(tags_id), Transaction.traDate>=minus_13_months, Transaction.traDate<first_of_this_month)\
+							.group_by(func.strftime('%Y%m',Transaction.traDate),func.strftime('%m',Transaction.traDate))\
 							.subquery()
 		month_count = Transaction.count_months(account_id) if Transaction.count_months(account_id) < 13 else 13
 		month_avg = db.session.query(\
 							column('orderByCol')\
 							,column('MON')\
-							,func.SUM(Transaction.amount/month_count).label('total_avg')\
+							,func.SUM(case([(Transaction.amount > 0,Transaction.amount/month_count)], else_ = 0)).label('avg_sum_in')\
+							,func.ABS(func.SUM(case([(Transaction.amount < 0,Transaction.amount/month_count)], else_ = 0))).label('avg_sum_out')\
 							,column('Dummy')\
 							,column('Dummy2'))\
-							.filter(Transaction.tag_id.in_(tag_inSum), Transaction.traDate>=minus_13_months, Transaction.traDate<first_of_this_month)\
+							.filter(Transaction.tag_id.in_(tags_id), Transaction.traDate>=minus_13_months, Transaction.traDate<first_of_this_month)\
 							.subquery()
 		return db.session.query(month_by_month.c.orderByCol\
 								,month_by_month.c.mnth\
-								,month_by_month.c.total\
-								,month_avg.c.total_avg\
+								,month_by_month.c.sum_in\
+								,month_by_month.c.sum_out\
+								,month_avg.c.avg_sum_in\
+								,month_avg.c.avg_sum_out\
 								,month_by_month.c.mmm\
 								)\
 				.outerjoin(month_by_month, month_by_month.c.Dummy == month_avg.c.Dummy)\
@@ -466,10 +455,10 @@ class Tag(db.Model):
 			.filter(Tag.tgr_id==grpid, Taggroup.acc_id==account_id)
 		return [val for val, in q]
 
-	def list_tag_id_inSum(account_id):
+	def list_tag_id_notBlnc(account_id):
 		q = db.session.query(Tag.id)\
 			.outerjoin(Taggroup)\
-			.filter(Tag.inSum==1, Taggroup.acc_id==account_id)
+			.filter(Tag.isBlnc!=1, Taggroup.acc_id==account_id)
 		return [val for val, in q]
 
 	def list_count(account_id):

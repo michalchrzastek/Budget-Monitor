@@ -91,13 +91,9 @@
 
 {% if cnt_all.cnt>0 %}
 <div class="row mt-3">
-  <div class="col-sm-4 p-0">
-    <div class="item-panel-title mr-2 p-2 bg-white">Previous Month In & Out</div>
-    <div class="item-panel-body mr-2 p-2 bg-white"><canvas id="chart_in_out" height="154"></canvas></div>
-  </div>
-  <div class="col-sm-8 p-0">
-    <div class="item-panel-title ml-2 p-2 bg-white">Monthly Trend</div>
-    <div class="item-panel-body ml-2 p-2 bg-white"><canvas id="chart_monthly_trend" height="75"></canvas></div>
+  <div class="col-sm-12 p-0">
+    <div class="item-panel-title p-2 bg-white">Monthly Trend (In vs Out)</div>
+    <div class="item-panel-body p-2 bg-white"><canvas id="chart_monthly_trend" height="50"></canvas></div>
   </div>
 </div>
 
@@ -106,7 +102,6 @@
     <div class="item-panel-title mr-2 p-2 bg-white">Avg Month vs Prev Month</div>
     <div class="item-panel-body mr-2 p-2 bg-white"><canvas id="chart_avg_month" height="{{ chart_avg_month_height }}"></canvas></div>
   </div>
-
   <div class="col-sm-8 p-0 mb-4">
     <div class="item-panel-title ml-2 p-2 bg-white">
       <form method="post" class="form-inline ml-2">
@@ -314,28 +309,6 @@
   };
   {% endif %}
   //chart3 END
-  //chart_in_out START
-  var config_in_out = {
-		type: 'pie',
-		data: {
-			datasets: [{
-				data: [
-          '{{ chart_in_out[0]|int }}',
-          '{{ chart_in_out[1]|int }}'
-				],
-				backgroundColor: ['#0275d8','#4e9ee4'],
-				label: 'Previous Month In vs Out'
-			}],
-			labels: ['In','Out']
-		},
-		options: {
-      responsive: true,
-      legend: {
-        position: 'left'
-      }
-		}
-	};
-  //chart_in_out END
   //chart_monthly_trend START
   var config_monthly_trend = {
     data: {
@@ -345,21 +318,37 @@
         {% endfor %}
       ],
 			datasets: [{
-				type: 'line',
-        label: 'Avg',
-        backgroundColor: '#212121',
-				borderColor: '#4e9ee4',
-				borderWidth: 2,
-				fill: false,
-				data: [{% for m in chart_monthly_trend %} ' {{ m.total_avg|int }}', {% endfor %}]
-			}, {
-				type: 'bar',
-				label: 'Month',
-				backgroundColor: '#0275d8',
-				data: [{% for m in chart_monthly_trend %} '{{ m.total|int }}', {% endfor %}],
-				borderColor: '#ffffff',
-				borderWidth: 1
-      }],
+          type: 'bar',
+          label: 'In',
+          backgroundColor: '#94cdff',
+          borderColor: '#ffffff',
+          borderWidth: 1,
+          data: [{% for m in chart_monthly_trend %} ' {{ m.sum_in|int }}', {% endfor %}]
+			  },{
+          type: 'bar',
+          label: 'Out',
+          backgroundColor: '#005cad',
+          borderColor: '#ffffff',
+          borderWidth: 1,
+          data: [{% for m in chart_monthly_trend %} '{{ m.sum_out|int }}', {% endfor %}]
+        },{
+          type: 'line',
+          label: 'Avg In',
+          backgroundColor: '#212121',
+          borderColor: '#94cdff',
+          borderWidth: 2,
+          fill: false,
+          data: [{% for m in chart_monthly_trend %} ' {{ m.avg_sum_in|int }}', {% endfor %}]
+			  },{
+          type: 'line',
+          label: 'Avg Out',
+          backgroundColor: '#212121',
+          borderColor: '#005cad',
+          borderWidth: 2,
+          fill: false,
+          data: [{% for m in chart_monthly_trend %} ' {{ m.avg_sum_out|int }}', {% endfor %}]
+			  }
+      ],
     },
     type: 'bar',
     options: {
@@ -416,8 +405,6 @@
   //chart_avg_month END
   //load all charts
 	window.onload = function() {
-		var ctx_in_out = document.getElementById('chart_in_out').getContext('2d');
-    window.myPie = new Chart(ctx_in_out, config_in_out);
     var ctx_monthly_trend = document.getElementById('chart_monthly_trend').getContext('2d');
     window.myMixedChart = new Chart(ctx_monthly_trend, config_monthly_trend);
     var ctx_avg_month = document.getElementById('chart_avg_month').getContext('2d');
