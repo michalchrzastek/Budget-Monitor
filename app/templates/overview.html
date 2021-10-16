@@ -199,6 +199,8 @@
           backgroundColor: '{{ c[1] }}',
           borderColor: '{{ c[1] }}',
           borderWidth: 2,
+          borderDash: [1,2],
+          pointRadius: 0,
           fill: false,
           hiddenLegend: false,
           data: [
@@ -276,6 +278,8 @@
           backgroundColor: '{{ c[1] }}',
           borderColor: '{{ c[1] }}',
           borderWidth: 2,
+          borderDash: [1,2],
+          pointRadius: 0,
           fill: false,
           hiddenLegend: false,
           data: [
@@ -353,6 +357,8 @@
           backgroundColor: '{{ c[1] }}',
           borderColor: '{{ c[1] }}',
           borderWidth: 2,
+          borderDash: [1,2],
+          pointRadius: 0,
           fill: false,
           hiddenLegend: false,
           data: [
@@ -407,31 +413,35 @@
 			datasets: [{
           type: 'bar',
           label: 'In',
-          backgroundColor: '#94cdff',
+          backgroundColor: '#74a7fe',
           borderColor: '#ffffff',
           borderWidth: 1,
           data: [{% for m in chart_monthly_trend %} ' {{ m.sum_in|int }}', {% endfor %}]
-			  },{
+        },{
+          type: 'line',
+          label: 'Avg In',
+          backgroundColor: '#74a7fe',
+          borderColor: '#94cdff',
+          borderWidth: 2,
+          borderDash: [1,2],
+          pointRadius: 0,
+          fill: false,
+          data: [{% for m in chart_monthly_trend %} ' {{ m.avg_sum_in|int }}', {% endfor %}]
+        },{
           type: 'bar',
           label: 'Out',
           backgroundColor: '#005cad',
           borderColor: '#ffffff',
           borderWidth: 1,
           data: [{% for m in chart_monthly_trend %} '{{ m.sum_out|int }}', {% endfor %}]
-        },{
-          type: 'line',
-          label: 'Avg In',
-          backgroundColor: '#94cdff',
-          borderColor: '#94cdff',
-          borderWidth: 2,
-          fill: false,
-          data: [{% for m in chart_monthly_trend %} ' {{ m.avg_sum_in|int }}', {% endfor %}]
 			  },{
           type: 'line',
           label: 'Avg Out',
           backgroundColor: '#005cad',
           borderColor: '#005cad',
           borderWidth: 2,
+          borderDash: [1,2],
+          pointRadius: 0,
           fill: false,
           data: [{% for m in chart_monthly_trend %} ' {{ m.avg_sum_out|int }}', {% endfor %}]
 			  }
