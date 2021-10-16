@@ -163,10 +163,10 @@
     });
   });
   //on page load, call default table view
-  $('#btn_gettable_year').click();
- 
+  document.getElementById("btn_gettable_year").click();
+
   //chart1 START
-  {% if chart_count[0] > 0 %}
+  {% if chart_count[0] > 0 %}  
   var config_chart0 = {
     data: {
 			labels: [
@@ -177,8 +177,12 @@
 			datasets: [
         {% for c in chart1 %}
         {
+          type: 'bar',
 				  label: '{{ c[0] }}',
 				  backgroundColor: '{{ c[1] }}',
+          borderColor: '#ffffff',
+          borderWidth: 1,
+          hiddenLegend: true,
 				  data: [
               {% for key, value in chart1_data.items() %}
                 {% for k,v in value.items() %}
@@ -189,11 +193,36 @@
               {% endfor %}
 				  ]
         },
+        {
+          type: 'line',
+          label: 'Avg',
+          backgroundColor: '{{ c[1] }}',
+          borderColor: '{{ c[1] }}',
+          borderWidth: 2,
+          fill: false,
+          hiddenLegend: false,
+          data: [
+              {% for key, value in chart1_data.items() %}
+                {% for k,v in value.items() %}
+                  {% if k=='Avg '+c[0] %}
+                    '{{ v|int }}',
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+          ]
+        },
         {% endfor %} 
       ]
     },
-    type: 'bar',
+      type: 'bar',
       options: {
+        legend: {
+          labels: {
+            filter: function (legendItem, chartData) {
+              return (chartData.datasets[legendItem.datasetIndex].hiddenLegend);
+            },
+          }
+        },
         responsive: true,
         title: {
           display: false
@@ -225,8 +254,12 @@
 			datasets: [
         {% for c in chart2 %}
         {
+          type: 'bar',
 				  label: '{{ c[0] }}',
 				  backgroundColor: '{{ c[1] }}',
+          borderColor: '#ffffff',
+          borderWidth: 1,
+          hiddenLegend: true,
 				  data: [
               {% for key, value in chart2_data.items() %}
                 {% for k,v in value.items() %}
@@ -237,11 +270,36 @@
               {% endfor %}
 				  ]
         },
+        {
+          type: 'line',
+          label: 'Avg',
+          backgroundColor: '{{ c[1] }}',
+          borderColor: '{{ c[1] }}',
+          borderWidth: 2,
+          fill: false,
+          hiddenLegend: false,
+          data: [
+              {% for key, value in chart2_data.items() %}
+                {% for k,v in value.items() %}
+                  {% if k=='Avg '+c[0] %}
+                    '{{ v|int }}',
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+          ]
+        },
         {% endfor %} 
       ]
     },
     type: 'bar',
       options: {
+        legend: {
+          labels: {
+            filter: function (legendItem, chartData) {
+              return (chartData.datasets[legendItem.datasetIndex].hiddenLegend);
+            },
+          }
+        },
         responsive: true,
         title: {
           display: false
@@ -273,8 +331,12 @@
 			datasets: [
         {% for c in chart3 %}
         {
+          type: 'bar',
 				  label: '{{ c[0] }}',
 				  backgroundColor: '{{ c[1] }}',
+          borderColor: '#ffffff',
+          borderWidth: 1,
+          hiddenLegend: true,
 				  data: [
               {% for key, value in chart3_data.items() %}
                 {% for k,v in value.items() %}
@@ -285,11 +347,36 @@
               {% endfor %}
 				  ]
         },
+        {
+          type: 'line',
+          label: 'Avg',
+          backgroundColor: '{{ c[1] }}',
+          borderColor: '{{ c[1] }}',
+          borderWidth: 2,
+          fill: false,
+          hiddenLegend: false,
+          data: [
+              {% for key, value in chart3_data.items() %}
+                {% for k,v in value.items() %}
+                  {% if k=='Avg '+c[0] %}
+                    '{{ v|int }}',
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+          ]
+        },
         {% endfor %} 
       ]
     },
     type: 'bar',
       options: {
+        legend: {
+          labels: {
+            filter: function (legendItem, chartData) {
+              return (chartData.datasets[legendItem.datasetIndex].hiddenLegend);
+            },
+          }
+        },
         responsive: true,
         title: {
           display: false
@@ -334,7 +421,7 @@
         },{
           type: 'line',
           label: 'Avg In',
-          backgroundColor: '#212121',
+          backgroundColor: '#94cdff',
           borderColor: '#94cdff',
           borderWidth: 2,
           fill: false,
@@ -342,7 +429,7 @@
 			  },{
           type: 'line',
           label: 'Avg Out',
-          backgroundColor: '#212121',
+          backgroundColor: '#005cad',
           borderColor: '#005cad',
           borderWidth: 2,
           fill: false,
@@ -377,6 +464,8 @@
         {
           label: '{{c.Category}}',
           backgroundColor: '{{c.color}}',
+          borderColor: '#ffffff',
+          borderWidth: 1,
           data: [ '{{ c.Avg_Month|int }}','{{ c.Prev_Month|int }}']
         }, 
       {% endfor %}

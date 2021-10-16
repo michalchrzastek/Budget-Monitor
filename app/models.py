@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from numpy import average
 import pandas as pd
 import flask
 from sqlalchemy import extract, asc, desc, func, column, case, text
@@ -184,12 +185,13 @@ class Transaction(db.Model):
 								,func.strftime('%m',Transaction.traDate).label('mnth'))\
 						.order_by('orderByCol',Taggroup.gName)
 
-		#get unique groups
+		#get unique group names
 		g = []
 		prev_val = ''
 		for row in q:
 			if row.gName != prev_val:
-				g.append(row.gName)
+				temp_name = row.gName
+				g.append(temp_name)
 			prev_val = row.gName
 
 		#create months/group with default value 
@@ -207,6 +209,12 @@ class Transaction(db.Model):
 				for mk in m[key]:
 					if mon_dict[row.mnth]==key and mk==row.gName :
 						m[key][mk] = row.total
+
+		#generate avg value for each group and add to dict
+		m_avg = list(map(average, zip(*[x.values() for x in m.values()])))
+		for key in m:
+			for counter, val in enumerate(m_avg):
+				m[key]['Avg '+g[counter]] = val
 		return m
 
 	def get_dates(what_year_):
