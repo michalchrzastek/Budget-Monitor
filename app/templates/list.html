@@ -2,110 +2,114 @@
 {% from "pagination.html" import pagi with context %}
 
 {% block subnav1 %}
-<li class="nav-item active"><a class="nav-link" href="{{ url_for('overview', accountid=accountid) }}">Overview</a></li>
+<li class="nav-item active"><a class="nav-link" href="{{ url_for('overview', accountid=accountid) }}">{{ lang['overview'] }}</a></li>
 {% if cnt_new.cnt > 0 and page_name=='listAll' %}
-  <li class="nav-item active"><a class="nav-link" href="{{ url_for('listNew', accountid=accountid) }}">New</a></li>
+  <li class="nav-item active"><a class="nav-link" href="{{ url_for('listNew', accountid=accountid) }}">{{ lang['new'] }}</a></li>
 {% endif %}
 {% if page_name=='listNew' %}
-  <li class="nav-item active"><a class="nav-link" href="{{ url_for('listAll', accountid=accountid) }}">All</a></li>
+  <li class="nav-item active"><a class="nav-link" href="{{ url_for('listAll', accountid=accountid) }}">{{ lang['all'] }}</a></li>
 {% endif %}
 {% endblock %}
 {% block app_content %}
 
-<main>
+
   <!-- Modal Split Transaction-->
   <div class="modal fade" id="Modal_split" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
         <div class="modal-header bg-primary">
-          <h4 class="modal-title text-light" id="exampleModalLabel">Split Transaction</h4>
-          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          <h4 class="modal-title text-light" id="exampleModalLabel">{{ lang['btn_split_transaction'] }}</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form method="post" class="form-horizontal mx-2">
             <div class="row">
-              <label for="trans_desc" class="col-sm-7 badge badge-dark py-2">New Description</label>
-              <label for="trans_amnt" class="col-sm-2 badge badge-dark py-2">Amount</label>
-              <label for="trans_tag"  class="col-sm-3 badge badge-dark py-2">Tag</label>
+              <label for="trans_desc" class="col-sm-7 badge badge-dark py-2">{{ lang['descriptions'] }}</label>
+              <label for="trans_amnt" class="col-sm-2 badge badge-dark py-2">{{ lang['anount'] }}</label>
+              <label for="trans_tag"  class="col-sm-3 badge badge-dark py-2">{{ lang['tag_name'] }}</label>
             </div>
             <div class="row">
               <input type="hidden" name="trans_ID" id="splitID" required>
-              <div class="col-sm-2 p-0"><div class="input-group date" data-idx="0" id="datetimepicker0" data-target-input="nearest">
-                <input type="text" name="trans_date" id="splitDate" class="form-control datetimepicker-input" data-target="#datetimepicker0" autocomplete="off" required/></div>
+              <div class="col-sm-2 p-0">                
+                <div class="input-group date" data-idx="100" id="datetimepicker100" data-td-target-input="nearest" data-td-target-toggle="nearest">
+                <input type="text" name="trans_date" id="date100" class="form-control form-control-sm" data-td-target="#datetimepicker100" required/>
+                <span class="input-group-text" data-td-target="#datetimepicker100" data-td-toggle="datetimepicker"><i class="bi-calendar"></i></span></div>
               </div>
               <div class="col-sm-5 p-0"><input type="text" class="form-control" name="trans_desc" id="splitDesc" autocomplete="off" required></div>
-              <div class="col-sm-2 p-0"><input type="number" step="0.01" class="form-control" name="trans_amnt" id="splitNewAmnt" autocomplete="off" required></div>
+              <div class="col-sm-2 p-0"><input type="number" step="0.01" class="form-control" name="trans_amnt" id="splitNewAmnt" onchange="recalculateTrans()" autocomplete="off" required></div>
               <div class="col-sm-3 p-0">
-                <select name="trans_tag" id="tag_list_00" class="form-control tag_list" data-idx="00" data-selitem="" data-multi="0" required></select>
+                <select name="trans_tag" id="tag_list_00" class="form-select tag_list" data-idx="00" data-selitem="" required></select>
               </div>
             </div>
             <div class="row mt-2">
               <div class="col-sm-7 px-1">
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" value="1" name="adjust" id="splitAdjust">
-                  <label class="form-check-label" for="splitAdjust">Update amount of the original transaction to:</label>
+                  <label class="form-check-label" for="splitAdjust">{{ lang['msg_update_amount'] }}:</label>
                 </div>
               </div>
               <input type="hidden" id="splitAmnt_static">
               <div class="col-sm-2 p-0"><input type="number" step="0.01" class="form-control" name="prevAmount" id="splitAmnt" autocomplete="off"></div>
             </div>
-            <button type="submit" name="btnSubmit" value="insertTrans" id="btnSplit" class="btn d-none">Submit</button>
+            <button type="submit" name="btnSubmit" value="insertTrans" id="btnSplit" class="btn d-none">{{ lang['btn_save'] }}</button>
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-primary mr-auto btnSplitTrigger">Save changes</button>
-          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-outline-primary me-auto" onclick="document.getElementById('btnSplit').click()">{{ lang['btn_save'] }}</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ lang['close'] }}</button>
         </div>
       </div>
     </div>
   </div>
   <!--END OF MODAL_SPLIT-->
+  <!-- Modal Chart-->
+  <div class="modal fade" id="Modal_chart" tabindex="-1">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-primary">
+          <h4 class="modal-title text-light" id="chartModalLabel"></h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="Modal_body_chart"></div>
+      </div>
+    </div>
+  </div>
+  <!--END OF MODAL Chart-->
 
 <form method="post" action="{{ url_for('filter', accountid=accountid, page_name=page_name) }}" class="form-horizontal">
   <div class="row">
-    <div class="col-sm p-0">
-      <select name="filter_tag[]" id="tag_list_0" data-id="tag_list_0" class="form-control form-control-sm tag_list" data-idx="0" data-selitem="{% for i in filter_tag %}{{ i }}{{ ',' if not loop.last }}{% endfor %}" multiple="multiple" data-multi="1" ></select>
-    </div>
+    <div class="col-sm p-0 bg-light border rounded px-1" id="tag_list_0" data-selitem="{% for i in filter_tag %}{{ i }}{{ ',' if not loop.last }}{% endfor %}"></div>
   </div>
   <div class="row">
-	  <div class="col-sm pr-0">
-      <div class="float-left">
+	  <div class="col-sm p-0">
+      <div class="float-start">
         {{ pagi(pagination, url_for_name) }}
       </div>
-      <div class="float-right">
+      <div class="float-end">
         <div class="input-group input-group-sm mt-2">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Tags</span>
+          <span class="input-group-text">{{ lang['tags'] }}</span>
+          <button type="button" class="btn btn-outline-danger btn-sm" onclick="selectCheckboxes(false)" data-container="body" data-toggle="tooltip" title="{{ lang['btn_tags_unselect'] }}"><i class="bi-x"></i></button>
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectCheckboxes(true)" data-container="body" data-toggle="tooltip" title="{{ lang['btn_tags_select'] }}"><i class="bi-plus-lg"></i></button>
+          <span class="input-group-text">{{ lang['from'] }}</span>
+          <div class="c0l-sm p-0" style="max-width:130px;">
+            <div class="input-group input-group-sm date" data-idx="101" id="datetimepicker101" data-td-target-input="nearest" data-td-target-toggle="nearest">
+            <input type="text" name="filter_from" value="{{ filter_from }}" id="date101" class="form-control form-control-sm" data-td-target="#datetimepicker101" required/>
+            <span class="input-group-text" data-td-target="#datetimepicker101" data-td-toggle="datetimepicker"><i class="bi-calendar"></i></span></div>
           </div>
-          <div class="input-group-append">
-            <a href="#" class="btn btn-outline-danger" onclick="$('#tag_list_0').bsMultiSelect('DeselectAll')" data-container="body" data-toggle="tooltip" title="Unselect All Tags"><span class="fa fa-times"></span></a>
+          <span class="input-group-text">{{ lang['to'] }}</span>
+          <div class="col-sm p-0" style="max-width:130px;">
+            <div class="input-group input-group-sm date" data-idx="102" id="datetimepicker102" data-td-target-input="nearest" data-td-target-toggle="nearest">
+            <input type="text" name="filter_to" value="{{ filter_to }}" id="date102" class="form-control form-control-sm" data-td-target="#datetimepicker102" required/>
+            <span class="input-group-text" data-td-target="#datetimepicker102" data-td-toggle="datetimepicker"><i class="bi-calendar"></i></span></div>
           </div>
-          <div class="input-group-append">
-            <a href="#" class="btn btn-outline-primary" onclick="$('#tag_list_0').bsMultiSelect('SelectAll')" data-container="body" data-toggle="tooltip" title="Select All Tags"><span class="fa fa-plus"></span></a>
-          </div>
-          <div class="input-group-append">
-            <span class="input-group-text">From</span>
-          </div>
-          <div class="col-sm p-0 date" data-idx="A" id="datetimepickerA" data-target-input="nearest" style="width:50px;"><input type="text" name="filter_from" value="{{ filter_from }}" class="form-control form-control-sm datetimepicker-input" data-target="#datetimepickerA" required/></div>
-          <div class="input-group-append">
-            <span class="input-group-text">To</span>
-          </div>
-          <div class="col-sm p-0 date" data-idx="B" id="datetimepickerB" data-target-input="nearest"><input type="text" name="filter_to" value="{{ filter_to }}" class="form-control form-control-sm datetimepicker-input date" data-target="#datetimepickerB" required/></div>
-          <div class="input-group-append">
-            <span class="input-group-text">Total # {{ cnt_avg_sum.a_cnt }}</span>
-          </div>
-          <div class="input-group-append">
-            <span class="input-group-text">Avg £{{'%0.2f'| format(cnt_avg_sum.a_avg|float)}}</span>
-          </div>
-          <div class="input-group-append">
-            <span class="input-group-text">Total £{{'%0.2f'| format(cnt_avg_sum.a_sum|float) }}</span>
-          </div>
-          <div class="input-group-append">
-            <button type="submit" class="btn btn-outline-success" name="btnSubmit" data-container="body" data-toggle="tooltip" title="Apply Filter"><span class="fa fa-filter"></span></button>
-          </div>
-          <div class="input-group-append">
-            <a href="{{ url_for('filter', accountid=accountid, page_name=page_name) }}" class="btn btn-outline-danger" data-container="body" data-toggle="tooltip" title="Reset Filter"><span class="fa fa-eraser"></span></a>
-          </div>
+          <span class="input-group-text">{{ lang['total'] }} # {{ cnt_avg_sum.a_cnt }}</span>
+          <span class="input-group-text">{{ lang['avg'] }} {{ currency_symbol }}{{'%0.2f'| format(cnt_avg_sum.a_avg|float)}}</span>
+          <span class="input-group-text">{{ lang['total'] }} {{ currency_symbol }}{{ cnt_avg_sum.a_sum|int }}</span>
+          <button type="submit" class="btn btn-outline-success btn-sm" name="btnSubmit" data-container="body" data-toggle="tooltip" title="{{ lang['btn_apply_filter'] }}"><i class="bi-funnel"></i></button>
+          <a href="{{ url_for('filter', accountid=accountid, page_name=page_name) }}" class="btn btn-outline-danger btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['btn_reset_filter'] }}"><i class="bi-eraser"></i></a>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['btn_chart_radar'] }}" data-bs-chart="1" data-bs-toggle="modal" data-bs-target="#Modal_chart"><i class="bi-pie-chart-fill"></i></button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['btn_chart_line'] }}" data-bs-chart="2" data-bs-toggle="modal" data-bs-target="#Modal_chart"><i class="bi-graph-up"></i></button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['btn_chart_bar'] }}" data-bs-chart="3" data-bs-toggle="modal" data-bs-target="#Modal_chart"><i class="bi-bar-chart-fill"></i></button>
         </div>
       </div>
 	  </div>     
@@ -113,39 +117,81 @@
 </form>
 
 
-<div class="row">
-	<label class="col-sm-2 badge badge-dark py-2">Date</label>
-	<label class="col-sm-5 badge badge-dark py-2">Description</label>
-	<label class="col-sm-1 badge badge-dark py-2">Amount</label>
-	<label class="col-sm-2 badge badge-dark py-2">Tag</label>
-	<label class="col-sm-2 badge badge-dark py-2">Tools</label>
+<div class="row my-1">
+	<label class="col-sm-2 badge bg-dark py-2">{{ lang['date'] }}</label>
+	<label class="col-sm-5 badge bg-dark py-2">{{ lang['transaction'] }}</label>
+	<label class="col-sm-1 badge bg-dark py-2">{{ lang['amount'] }}</label>
+	<label class="col-sm-2 badge bg-dark py-2">{{ lang['tag_name'] }}</label>
+	<label class="col-sm-2 badge bg-dark py-2"><i class="bi-tools"></i></label>
 </div>
 {% for tran in pagination.items %}
 	<form method="post">
 	  <div class="row">
       <input type="hidden" name="trans_ID" value="{{ tran.id }}" id="id{{ loop.index }}" required>
-      <div class="col-sm-2 p-0"><div class="input-group date" data-idx="{{ loop.index }}" id="datetimepicker{{ loop.index }}" data-target-input="nearest">
-        <input type="text" name="trans_date" value="{{ tran.traDate }}" id="date{{ loop.index }}" class="form-control form-control-sm datetimepicker-input" data-target="#datetimepicker{{ loop.index }}" required/></div>
+      <div class="col-sm-2 p-0">
+        <div class="input-group input-group-sm date" data-idx="{{ loop.index }}" id="datetimepicker{{ loop.index }}" data-td-target-input="nearest" data-td-target-toggle="nearest">
+          <input type="text" name="trans_date" value="{{ tran.traDate }}" id="date{{ loop.index }}" class="form-control form-control-sm" data-td-target="#datetimepicker{{ loop.index }}" required/>
+          <span class="input-group-text" data-td-target="#datetimepicker{{ loop.index }}" data-td-toggle="datetimepicker"><i class="bi-calendar"></i></span></div>
       </div>
       <div class="col-sm-5 p-0"><input type="text" class="form-control form-control-sm" name="trans_desc" value="{{ tran.desc }}" id="desc{{ loop.index }}" autocomplete="off" required></div>
       <div class="col-sm-1 p-0"><input type="text" class="form-control form-control-sm" name="trans_amnt" value="{{ tran.amount }}" id="amnt{{ loop.index }}" autocomplete="off" required></div>
-      <div class="col-sm-2 p-0"><select name="trans_tag" id="tag_list_{{ loop.index }}" class="form-control form-control-sm tag_list" data-idx="{{ loop.index }}" data-selitem="{{ tran.tag_id }}" data-multi="0" required></select></div>
-      <div class="col-sm-2 pr-0 btn-group">
-  			<button type="submit" class="btn btn-outline-success btn-sm float-right" name="btnSubmit" value="updateTrans" data-container="body" data-toggle="tooltip" title="Save Changes"><span class="fa fa-save"></span></button>
-        <button type="submit" class="btn btn-outline-primary btn-sm float-right" name="btnSubmit" value="createCondition" data-container="body" data-toggle="tooltip" title="Create Match String"><span class="fa fa-plus"></span></button>
-        <button type="button" class="btn btn-outline-info btn-sm float-right modalTrigger" data-idx="{{ loop.index }}" data-container="body" data-toggle="tooltip" title="Split Transaction"><span class="fa fa-copy"></span></button>
-			  <button type="submit" class="btn btn-outline-danger btn-sm float-right" name="btnSubmit" value="deleteTrans" data-container="body" data-toggle="tooltip" title="Delete Transaction"><span class="fa fa-trash"></span></button>
+      <div class="col-sm-2 p-0"><select name="trans_tag" id="tag_list_{{ loop.index }}" class="form-select form-select-sm tag_list" data-idx="{{ loop.index }}" data-selitem="{{ tran.tag_id }}" required></select></div>
+      <div class="col-sm-2 p-0 btn-group">
+  			<button type="submit" class="btn btn-outline-success btn-sm ml-1" name="btnSubmit" value="updateTrans" data-container="body" data-toggle="tooltip" title="{{ lang['btn_save'] }}"><i class="bi-save"></i></button>
+        <button type="submit" class="btn btn-outline-primary btn-sm" name="btnSubmit" value="createCondition" data-container="body" data-toggle="tooltip" title="{{ lang['btn_create_match_string'] }}"><i class="bi-plus-lg"></i></button>
+        <button type="button" class="btn btn-outline-info btn-sm" data-bs-idx="{{ loop.index }}" data-bs-toggle="modal" data-bs-target="#Modal_split" data-container="body" data-toggle="tooltip" title="{{ lang['btn_split_transaction'] }}"><i class="bi-file-earmark-plus"></i></button>
+			  <button type="submit" class="btn btn-outline-danger btn-sm" name="btnSubmit" value="deleteTrans" data-container="body" data-toggle="tooltip" title="{{ lang['btn_delete'] }}"><i class="bi-trash"></i></button>
       </div>
 	  </div>
   </form>
 {% endfor %}
+<br>
 
-{{ pagi(pagination, url_for_name) }}
-</main>
 {% endblock %}
 {% block page_script %}
-<script src="https://rawgit.com/DashboardCode/BsMultiSelect/master/dist/js/BsMultiSelect.min.js"></script>
+<!-- Tempus Dominus JavaScript -->
+<script src="https://cdn.jsdelivr.net/gh/Eonasdan/tempus-dominus@master/dist/js/tempus-dominus.js"></script>
+<!-- Tempus Dominus Styles -->
+<link href="https://cdn.jsdelivr.net/gh/Eonasdan/tempus-dominus@master/dist/css/tempus-dominus.css" rel="stylesheet"/>
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js" integrity="sha512-TW5s0IT/IppJtu76UbysrBH9Hy/5X41OTAbQuffZFU6lQ1rdcLHzpU5BzVvr/YFykoiMYZVWlr/PX1mDcfM9Qg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script type="text/javascript">
+
+//populate .date field => date picker
+/*
+  const dateFields = document.querySelectorAll(".date");
+  dateFields.forEach(function(item){
+    var idx = item.getAttribute("data-idx");
+    new tempusDominus.TempusDominus(document.getElementById("datetimepicker"+idx),{
+      hooks: {inputFormat:(context, date) => { 
+        return date.toISOString().substr(0,10)
+      }},
+      display: {
+        viewMode: 'clock',
+        components: {
+          decades: true,
+          year: true,
+          month: true,
+          date: true,
+          hours: false,
+          minutes: false,
+          seconds: false
+        },
+        icons: {
+          time: 'bi bi-clock',
+          date: 'bi bi-calendar',
+          up: 'bi bi-arrow-up',
+          down: 'bi bi-arrow-down',
+          previous: 'bi bi-chevron-left',
+          next: 'bi bi-chevron-right',
+          today: 'bi bi-calendar-check',
+          clear: 'bi bi-trash',
+          close: 'bi bi-x'
+        }
+      }
+    });
+  });
+*/
 
 //create a map of all tags
   const tag_map = new Map();
@@ -153,76 +199,236 @@
     tag_map.set({{ tag.id }}, "{{ tag.tName }}");
   {% endfor %}
 
-//.tag_list dropdown list
-  $('.tag_list').each(function(){
-    var idx = $(this).data('idx');
+//generate checkbox list
+  function genCheckbox(){
+    var data = '';
+    var chboxDiv = document.getElementById('tag_list_0');
+    //remove spaces and square brackets, make into an array
+    var chboxSelitems = chboxDiv.getAttribute('data-selitem').slice(1,-1).replace(/\s+/g,'').split(',');
+    for(let [key, value] of tag_map){
+      var chkd = '';
+      if(chboxSelitems.includes(key.toString())){
+        chkd = 'checked';
+      }
+  		data = data + '<div class="form-check form-check-inline"><input class="form-check-input" name="filter_tag[]" type="checkbox" id="ch_'+ key +'" value="'+ key +'" '+chkd+'><label for="ch_'+ key +'" class="form-check-label small">'+ value +'</label></div>';
+    }
+    chboxDiv.innerHTML = data;
+	}
+  genCheckbox();
+
+//select / de-select all checkboxes
+  function selectCheckboxes(ischecked){
+    const allTags = document.getElementById('tag_list_0').querySelectorAll('input');
+    allTags.forEach(aTag => {
+      aTag.checked = ischecked; 
+    });
+  }
+ 
+//populate .tag_list dropdown list
+  document.querySelectorAll('.tag_list').forEach(item => {
+		var idx = item.getAttribute('data-idx');
     var data = '';  
     //generate dropdown options
 	  for(let [key, value] of tag_map){
 	  	data = data + '<option value="'+ key +'">'+ value +'</option>';
 	  }
     //populate dropdown with options
-    $('#tag_list_'+idx).html(data);
-    //populate dropdown with options
-    if($(this).data('multi') == 1){
-      $('#tag_list_'+idx).html(data);
-      $('#tag_list_'+idx).bsMultiSelect();
-    }else{
-      $('#tag_list_'+idx).html('<option value="">- Select Tag -</option>' + data);
-    }
-    //select options
-    $.sel_ids = $(this).data('selitem').toString().split(',');
-    $('#tag_list_'+idx).val($.sel_ids);
+    document.getElementById('tag_list_'+idx).innerHTML = '<option value="">- - -</option>' + data;
+    //add 'select' to selected options
+    var sel_ids = item.getAttribute('data-selitem').toString().split(',');
+    document.getElementById('tag_list_'+idx).value = sel_ids;
   });
 
 //Modal open
-  $('.modalTrigger').click(function(){
-    var idx = $(this).data('idx');
-    //get source data and pass it to modal
-    $('#Modal_split #splitID').val($('#id'+idx).val());
-    $('#Modal_split #splitDate').val($('#date'+idx).val());
-    $('#Modal_split #splitDesc').val('SPLIT - '+$('#desc'+idx).val());
-    $('#Modal_split #splitAmnt').val($('#amnt'+idx).val());
-    $('#Modal_split #splitAmnt').prop('required',true);
-    $('#Modal_split #splitAmnt_static').val($('#amnt'+idx).val());
-    $('#Modal_split #splitAdjust').prop('checked',true);
-    $('#Modal_split').modal();
+  var myModal = document.getElementById('Modal_split');
+  myModal.addEventListener('show.bs.modal', function(event){
+    // Button that triggered the modal
+    var button = event.relatedTarget;
+    // Extract info from data-bs-* attributes
+    var idx = button.getAttribute('data-bs-idx');
+    // Update the modal's content.
+    const split_locale = "{{ lang['split'] }}";
+    document.getElementById('splitID').value = document.getElementById('id'+idx).value;
+    document.getElementById('date100').value = document.getElementById('date'+idx).value;
+    document.getElementById('splitDesc').value = split_locale +' - '+document.getElementById('desc'+idx).value;
+    document.getElementById('splitAmnt').value = document.getElementById('amnt'+idx).value;
+    document.getElementById('splitAmnt_static').value = document.getElementById('amnt'+idx).value;
+    document.getElementById("splitAmnt").required = true;
+    document.getElementById("splitAdjust").checked = true;
   });
   //recalculate original transaction amount
-  $('#Modal_split #splitNewAmnt').change(function(){
-    var am1 = $('#Modal_split #splitAmnt_static').val();
-    var am2 = $('#Modal_split #splitNewAmnt').val();
-    var res = parseFloat(am1) - parseFloat(am2);
-    $('#Modal_split #splitAmnt').val(res.toFixed(2));
+  function recalculateTrans(){
+    var am1 = document.getElementById('splitAmnt_static').value;
+    var am2 = document.getElementById('splitNewAmnt').value;
+    var res = am1;
+    if(am2!=""){//if the new amount field is blank, then use the original value
+      res = (parseFloat(am1) - parseFloat(am2)).toFixed(2);
+    }
+    document.getElementById('splitAmnt').value = res;
+  }
+
+
+//Modal Chart
+  var chartModal = document.getElementById('Modal_chart');
+  chartModal.addEventListener('show.bs.modal', function(event){
+    // Button that triggered the modal
+    var button = event.relatedTarget;
+    // Extract info from data-bs-* attributes
+    var chrt = button.getAttribute('data-bs-chart');
+    document.getElementById("Modal_body_chart").innerHTML = '<canvas id="canvas_chart"></canvas>';
+    const ctx = document.getElementById('canvas_chart');
+    const wkDayArr = "{{ lang['day_arr'] }}".split(',');
+
+    if(chrt==1){
+      document.getElementById("chartModalLabel").innerText = "{{ lang['chrt_lbl_detail'] }}";
+      getAjax('chart/{{ accountid }}/1', function(data){
+        var res = JSON.parse(data);
+        var yymm  = [];
+        var lbl = [];
+        var col = [];
+        var dta = {};
+
+        var idx = 0;
+        for(var i=0; i<res['chart'].length; i++){
+          //create month labels for x axis
+          if(yymm.indexOf(res['chart'][i]['yyyymm']) === -1){
+            yymm.push(res['chart'][i]['yyyymm']);
+          }
+          //create category label for y axis
+          if(lbl.indexOf(res['chart'][i]['Category']) === -1){
+            lbl.push(res['chart'][i]['Category']);
+            col.push(res['chart'][i]['color']);
+            dta[idx] = [];
+            idx++;
+          }
+        }
+
+        //create data points
+        for(var i=0; i<yymm.length; i++){
+          for(var j=0; j<lbl.length; j++){
+            //some months might not have any transaction for X category, 
+            //therefore a '0' value needs to be added to the array, for the array to have correct length
+            var amountFound = 0;
+            for(var k=0; k<res['chart'].length; k++){
+              if(res['chart'][k]['Category'] == lbl[j] && res['chart'][k]['yyyymm'] == yymm[i]){
+                amountFound = Math.round(res['chart'][k]['amount']);
+              }
+            }
+            dta[j].push(amountFound);
+          }
+        }
+
+        var dataset = [];
+        for(var i=0; i<lbl.length; i++){
+          dataset.push({
+            label: lbl[i],
+            backgroundColor: col[i],
+            borderColor: '#ffffff',
+            borderWidth: 1,
+            data: dta[i]
+          });
+        };
+
+        const data1 = {
+          labels: yymm,
+          datasets: dataset
+        };
+
+        const myChart1 = new Chart(ctx, {
+          type: 'bar',
+          data: data1,
+          options: {
+            title: {
+              display: false
+            },
+            tooltips: {
+              mode: 'index',
+              intersect: false
+            },
+            responsive: true,
+            scales: {
+              x: {
+                stacked: true,
+              },
+              y: {
+                stacked: true
+              }
+            }
+          }
+	      });
+      });
+
+
+    }else if(chrt==2){
+      document.getElementById("chartModalLabel").innerText = "{{ lang['chrt_lbl_timeline'] }}";
+      getAjax('chart/{{ accountid }}/2', function(data){
+        var res = JSON.parse(data);
+        var lbl = [];
+        var dta = [];
+        for (var i=0; i<res['chart'].length; i++) {
+          var dTxt = res['chart'][i]['traDate'].substring(5,16)
+          lbl.push(dTxt);
+          dta.push(res['chart'][i]['amount']);
+        }
+        const myChart1 = new Chart(ctx, {
+          type: 'line',
+          data: {
+              labels: lbl,
+              datasets: [{
+                  label: 'Amount',
+                  data: dta,
+                  backgroundColor: '#74a7fe',
+                  borderColor: '#74a7fe',
+                  borderWidth: 1
+              }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              }
+            }
+          }
+        });
+      });
+
+    }else if(chrt==3){
+      document.getElementById("chartModalLabel").innerText = "{{ lang['chrt_lbl_weekdays'] }}";
+      getAjax('chart/{{ accountid }}/3', function(data){
+        var res = JSON.parse(data);
+        var lbl = [];
+        var dta = [];
+        for (var i=0; i<res['chart'].length; i++) {
+          lbl.push(wkDayArr[res['chart'][i]['wkDay']]);
+          dta.push(res['chart'][i]['amount']);
+        }
+        const myChart1 = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: lbl,
+              datasets: [{
+                  label: 'Amount',
+                  data: dta,
+                  backgroundColor: '#74a7fe',
+                  borderColor: '#ffffff',
+                  borderWidth: 1
+              }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              }
+            }
+          }
+        });
+      });
+    }
   });
-  //Transcation split modal, submit trigger
-  $('.btnSplitTrigger').click(function(){
-    $('#btnSplit').click();
-  });
-
-
-function bsMultiSelectHeight(bsMs){
-  //https://github.com/DashboardCode/BsMultiSelect/issues/7
-  //find height of the browser window
-  var e = document.documentElement,
-      g = document.getElementsByTagName('body')[0],
-      y = window.innerHeight || e.clientHeight || g.clientHeight;
-  //find DOM element
-  var bsMultiSelectDiv = document.getElementById(bsMs);
-  var bsMultiSelectParent = bsMultiSelectDiv.nextElementSibling;
-  var bsMultiSelect = bsMultiSelectParent.getElementsByClassName('dropdown-menu')[0];
-  //find position of BsMultiSelect, if it's at the bottom of the page make the ul.dropdown-menu shorter
-  var pos = bsMultiSelectParent.getBoundingClientRect();
-  var new_y = y - pos.top;
-  //calculate BsMultiSelect max-height
-  var msHeight = Math.round(new_y * 0.85);
-  //add css height value
-  bsMultiSelect.style.setProperty("max-height", msHeight+"px");
-  bsMultiSelect.style.setProperty("overflow-y", "scroll");
-}
-
-bsMultiSelectHeight('tag_list_0');
-
 </script>
 {% endblock %}
 
