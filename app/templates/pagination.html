@@ -1,9 +1,10 @@
 {% macro pagi(pagination, url_for_name) %}
-    <div class="row my-2 pr-3 btn-group">
+<div class="my-2">
+    <div class="btn-group">
         {% if has_prev %}
-            <a href="{{ has_prev }}" class="btn btn-outline-primary btn-sm"><span class="fa fa-step-backward"></span></a>
+            <a href="{{ has_prev }}" class="btn btn-outline-primary btn-sm"><i class="bi-skip-start-fill" style="font-size:0.9rem;"></i></a>
         {% else %}
-            <a href="#" class="btn btn-outline-primary disabled btn-sm"><span class="fa fa-step-backward"></span></a>  
+            <a href="#" class="btn btn-outline-primary disabled btn-sm"><i class="bi-skip-start" style="font-size:0.9rem;"></i></a>  
         {% endif %}
 
         {% for page in pagination.iter_pages(left_edge=2, left_current=2, right_current=4, right_edge=2) %}
@@ -21,9 +22,10 @@
         {% endfor %}
 
         {% if has_next %}
-            <a href="{{ has_next }}" class="btn btn-outline-primary btn-sm"><span class="fa fa-step-forward"></span></a>
+            <a href="{{ has_next }}" class="btn btn-outline-primary btn-sm"><i class="bi-skip-end-fill" style="font-size:0.9rem;"></i></a>
         {% else %}
-            <a href="#" class="btn btn-outline-primary disabled btn-sm"><span class="fa fa-step-forward"></span></a>
+            <a href="#" class="btn btn-outline-primary disabled btn-sm"><i class="bi-skip-end" style="font-size:0.9rem;"></i></a>
         {% endif %}
     </div>
+</div>
 {% endmacro %}
