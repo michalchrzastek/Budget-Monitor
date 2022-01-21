@@ -21,6 +21,15 @@ There is a number of budget monitor like apps, but appart of some requiring to r
 ## Plans for the future:
 Dependency on Bootstrap 4.5. Once version 5 is released, will update this app. This also links with removal of jQuery and elimination of FontAwesome in favour of default Bootstrap icons. Also dependency on Tempus-Dominus, (date picker) and BSMultiSelect (tag filter). All mentioned are used in the app via cdn.
 
+January 2022 update:
+- Upgraded Bootstrap from 4.5 to 5.1
+- Replaced FontAwesome for Bootstrap Icons
+- Upgraded ChartsJS from 2.* to 3.7
+- Removed jQuery
+- Removed BSMultiSelect
+- Added option to set the interface with a different language
+- Date picker (TempusDominus) temporary disabled, until v6 is completed
+
 ## Installation instructions (for Mac):
 Prerequisite: Python3.6 (minimum), check your version: python3 --version
 
