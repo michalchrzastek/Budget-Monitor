@@ -2,41 +2,47 @@
 {% from "pagination.html" import pagi with context %}
 
 {% block subnav1 %}
-<li class="nav-item active"><a class="nav-link" href="{{ url_for('overview', accountid=accountid) }}">Overview</a></li>
+<li class="nav-item active"><a class="nav-link" href="{{ url_for('overview', accountid=accountid) }}">{{ lang['overview'] }}</a></li>
 	{% if cnt_new.cnt > 0 and page_name=='listAll' %}
-	<li class="nav-item active"><a class="nav-link" href="{{ url_for('listNew', accountid=accountid) }}">New</a></li>
+	<li class="nav-item active"><a class="nav-link" href="{{ url_for('listNew', accountid=accountid) }}">{{ lang['new'] }}</a></li>
 	{% endif %}
 	{% if page_name=='listNew' %}
-	<li class="nav-item active"><a class="nav-link" href="{{ url_for('listAll', accountid=accountid) }}">All</a></li>
+	<li class="nav-item active"><a class="nav-link" href="{{ url_for('listAll', accountid=accountid) }}">{{ lang['all'] }}</a></li>
 	{% endif %}
 {% endblock %}
 
 {% block app_content %}
-<main>
-	<form method="post">
+
+	<form method="post" class="mt-1">
 		<div class="row">
-			<label class="col-sm-3 badge badge-dark py-2">Tag Name</label>
-			<label class="col-sm-2 badge badge-dark py-2">Tag Group</label>
-      <label class="col-sm-1 badge badge-dark py-2">Balance</label>
-      <label class="col-sm-1 badge badge-dark py-2">Summary</label>
-			<label class="col-sm-1 badge badge-dark py-2">Chart1</label>
-			<label class="col-sm-1 badge badge-dark py-2">Chart2</label>
-			<label class="col-sm-1 badge badge-dark py-2">Chart3</label>
+			<label class="col-sm-3 badge bg-dark py-2">{{ lang['tag_name'] }}</label>
+			<label class="col-sm-2 badge bg-dark py-2">{{ lang['tag_group'] }}</label>
+      <label class="col-sm-1 badge bg-dark py-2">{{ lang['balance'] }}</label>
+      <label class="col-sm-1 badge bg-dark py-2">{{ lang['incl_summary'] }}</label>
+			<label class="col-sm-1 badge bg-dark py-2">{{ lang['chart'] }}1</label>
+			<label class="col-sm-1 badge bg-dark py-2">{{ lang['chart'] }}2</label>
+			<label class="col-sm-1 badge bg-dark py-2">{{ lang['chart'] }}3</label>
+      <label class="col-sm-2 badge bg-dark py-2"><i class="bi-tools"></i></label>
+
 		</div>
-		<div class="row">
-			<div class="col-sm-3 p-0"><input type="text" class="form-control form-control-sm" name="tag_desc" placeholder="Enter new..." autocomplete="off" required></div>
-      <div class="col-sm-2 p-0"><select name="tag_group" id="grp_list_00" class="form-control form-control-sm grp_list" data-idx="00" data-selitem="" required></select></div>
-      <div class="col-sm-1"><input type="checkbox" class="form-control ml-4" name="isBlnc" value="1"></div>
-      <div class="col-sm-1"><input type="checkbox" class="form-control ml-4" name="inSum" value="1"></div>
-      <div class="col-sm-1"><input type="checkbox" class="form-control ml-4" name="chart1" value="1"></div>
-      <div class="col-sm-1"><input type="checkbox" class="form-control ml-4" name="chart2" value=""></div>
-      <div class="col-sm-1"><input type="checkbox" class="form-control ml-4" name="chart3" value=""></div>
-			<div class="col-sm-2 pr-0"><button type="submit" name="btnSubmit" value="createTag" class="btn btn-outline-primary btn-block btn-sm float-right"><span class="fa fa-plus"></span></button></div>
+		<div class="row mt-1">
+			<div class="col-sm-3 p-0"><input type="text" class="form-control form-control-sm" name="tag_desc" autocomplete="off" required></div>
+      <div class="col-sm-2 p-0"><select name="tag_group" id="grp_list_00" class="form-select form-select-sm grp_list" data-idx="00" data-selitem="" required></select></div>
+      <div class="col-sm-1 d-flex justify-content-center"><input type="checkbox" class="form-check-input" name="isBlnc" value="1"></div>
+      <div class="col-sm-1 d-flex justify-content-center"><input type="checkbox" class="form-check-input" name="inSum" value="1"></div>
+      <div class="col-sm-1 d-flex justify-content-center"><input type="checkbox" class="form-check-input" name="chart1" value="1"></div>
+      <div class="col-sm-1 d-flex justify-content-center"><input type="checkbox" class="form-check-input" name="chart2" value="1"></div>
+      <div class="col-sm-1 d-flex justify-content-center"><input type="checkbox" class="form-check-input" name="chart3" value="1"></div>
+			<div class="col-sm-2 pe-0"><button type="submit" name="btnSubmit" value="createTag" class="btn btn-outline-primary btn-block btn-sm"><i class="bi-plus-lg"></i></button></div>
 		</div>
   </form>
   
 {% if show_pagination %}
-  {{ pagi(pagination, url_for_name) }}
+  <div class="row">
+    <div class="col-sm p-0">
+      {{ pagi(pagination, url_for_name) }}
+    </div>
+  </div>
 {% else %}
 	<br><br>
 {% endif %}
@@ -46,24 +52,20 @@
     <div class="row">
     <input type="hidden" name="tag_ID" value="{{ tag.id }}" id="id{{ loop.index }}" required>
     <div class="col-sm-3 p-0"><input type="text" class="form-control form-control-sm" name="tag_desc" value="{{ tag.tName }}" autocomplete="off" required></div>
-    <div class="col-sm-2 p-0"><select name="tag_group" id="grp_list_{{ loop.index }}" class="form-control form-control-sm grp_list" data-idx="{{ loop.index }}" data-selitem="{{ tag.tgr_id }}" required></select></div>
-    <div class="col-sm-1"><input type="checkbox" class="form-control form-control-sm ml-4" name="isBlnc" value="1" {{ 'checked' if tag.isBlnc }}></div>
-    <div class="col-sm-1"><input type="checkbox" class="form-control form-control-sm ml-4" name="inSum" value="1" {{ 'checked' if tag.inSum }}></div>
-    <div class="col-sm-1"><input type="checkbox" class="form-control form-control-sm ml-4" name="chart1" value="1" {{ 'checked' if tag.chart1 }}></div>
-    <div class="col-sm-1"><input type="checkbox" class="form-control form-control-sm ml-4" name="chart2" value="1" {{ 'checked' if tag.chart2 }}></div>
-    <div class="col-sm-1"><input type="checkbox" class="form-control form-control-sm ml-4" name="chart3" value="1" {{ 'checked' if tag.chart3 }}></div>
-    <div class="col-sm-2 pr-0 btn-group">
-      <button type="submit" class="btn btn-outline-success btn-sm float-right" name="btnSubmit" value="updateTag" data-container="body" data-toggle="tooltip" title="Save Changes"><span class="fa fa-save"></span></button>
-      <button type="submit" class="btn btn-outline-danger btn-sm float-right" name="btnSubmit" value="deleteTag" data-container="body" data-toggle="tooltip" title="Delete"><span class="fa fa-trash"></span></button>
+    <div class="col-sm-2 p-0"><select name="tag_group" id="grp_list_{{ loop.index }}" class="form-select form-select-sm grp_list" data-idx="{{ loop.index }}" data-selitem="{{ tag.tgr_id }}" required></select></div>
+    <div class="col-sm-1 d-flex justify-content-center"><input type="checkbox" class="form-check-input" name="isBlnc" value="1" {{ 'checked' if tag.isBlnc }}></div>
+    <div class="col-sm-1 d-flex justify-content-center"><input type="checkbox" class="form-check-input" name="inSum" value="1" {{ 'checked' if tag.inSum }}></div>
+    <div class="col-sm-1 d-flex justify-content-center"><input type="checkbox" class="form-check-input" name="chart1" value="1" {{ 'checked' if tag.chart1 }}></div>
+    <div class="col-sm-1 d-flex justify-content-center"><input type="checkbox" class="form-check-input" name="chart2" value="1" {{ 'checked' if tag.chart2 }}></div>
+    <div class="col-sm-1 d-flex justify-content-center"><input type="checkbox" class="form-check-input" name="chart3" value="1" {{ 'checked' if tag.chart3 }}></div>
+    <div class="col-sm-2 pe-0 btn-group">
+      <button type="submit" class="btn btn-outline-success btn-sm float-right" name="btnSubmit" value="updateTag" data-container="body" data-toggle="tooltip" title="{{ lang['btn_save'] }}"><i class="bi-save"></i></button>
+      <button type="submit" class="btn btn-outline-danger btn-sm float-right" name="btnSubmit" value="deleteTag" data-container="body" data-toggle="tooltip" title="{{ lang['btn_delete'] }}"><i class="bi-trash"></i></button>
     </div>
     </div>
   </form>
 {% endfor %}
 
-{% if show_pagination %}
-  {{ pagi(pagination, url_for_name) }}
-{% endif %}
-</main>
 {% endblock %}
 {% block page_script %}
 
@@ -75,19 +77,19 @@
     group_map.set({{ grp.id }}, "{{ grp.gName }}");
   {% endfor %}
 
-//.tag_list dropdown list
-  $('.grp_list').each(function(){
-    var idx = $(this).data('idx');
-    var data = '<option value="">- Select Tag Group -</option>';  
+//populate .tag_list dropdown list
+  document.querySelectorAll('.grp_list').forEach(item => {
+    var idx = item.getAttribute('data-idx');
+    var data = '<option value="">- - -</option>';
     //generate dropdown options
     for(let [key, value] of group_map){
 	  	data = data + '<option value="'+ key +'">'+ value +'</option>';
 	  }
     //populate dropdown with options
-    $('#grp_list_'+idx).html(data);
-    //add 'select' to selected options
-    $.sel_ids = $(this).data('selitem').toString().split(',');
-    $('#grp_list_'+idx).val($.sel_ids);
+    document.getElementById('grp_list_'+idx).innerHTML = data;
+    //add 'select' property to selected options
+    var sel_ids = item.getAttribute('data-selitem').toString().split(',');
+    document.getElementById('grp_list_'+idx).value = sel_ids;
   });
 
 </script>
