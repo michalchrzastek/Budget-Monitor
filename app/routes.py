@@ -4,15 +4,19 @@ from flask import render_template, request, redirect, session, flash, url_for, j
 from app.models import Account, Transaction, Taggroup, Tag, Condition, Description
 import os,re
 
+lang = app.config['LOCAL_DICT'][app.config['LOCAL_LANG']]
+
 ##----------------------------------------------------------------------------------------------------Index Page
 @app.route('/', methods=['GET', 'POST'])
 def index():
 	templateData = {
+		'lang' : lang,
 		'accounts' : Account.list_acc()
 	}
 	session['filter_from'] = None
 	session['filter_to'] = None
 	session['filter_tag'] = None
+	session['selected_year'] = None
 	if request.method=='POST' and request.form['action']=='addAccount':
 		newAccName = request.form['accName']
 		Account.create_one(newAccName)
@@ -20,12 +24,12 @@ def index():
 		Taggroup.insert_tag_group('New Tag Group - EDIT THIS', '#000000', accountid)
 		last_group_id = Taggroup.list_tgroup_id_one(accountid)
 		Tag.insert_tag('New Tag - EDIT THIS', last_group_id, 0,1,0,0,0)
-		flash('New Account Created','success')
+		flash(lang['flash_msg_new_account_created'],'success')
 		return redirect(url_for('index'))
 	elif request.method=='POST' and request.form['action']=='deleteAccount':
 		accid = request.form['del_acc']
 		Account.delete_account(accid)
-		flash('The Account Has Been Deleted','success')
+		flash(lang['flash_msg_account_deleted'],'success')
 		return redirect(url_for('index'))
 	else:
 		return render_template("/index.html",**templateData)
@@ -41,7 +45,7 @@ def overview(accountid):
 		card = request.form['card']
 		file = request.files['file']
 		if file and not allowed_file(file.filename):
-			flash('This file type is not accepted, must be a *.qif statement', 'warning')
+			flash(lang['flash_msg_wrong_file'], 'warning')
 			return redirect(url_for('overview', accountid=accountid))
 		else:
 			#get conditions into dictionary
@@ -75,7 +79,7 @@ def overview(accountid):
 					col = dl.split(';')											#each list item into columns
 					datetimeobject = datetime.strptime(col[0],'%d/%m/%Y')		#change transaction date format
 					transDate = datetimeobject.strftime('%Y-%m-%d')
-					transAmnt = col[1]
+					transAmnt = col[1].replace(",","")
 					transDesc = col[2].replace("\n","")
 					if desc_dict:												#if description exist
 						for key, value in desc_dict.items(): 					#search for a matching string
@@ -95,10 +99,10 @@ def overview(accountid):
 					trans_inserted +=1
 				
 				if trans_inserted==trans_found:
-					flash_msg = 'Statement uploaded, Found: ' + str(trans_found)
+					flash_msg = lang['flash_msg_stmt_uploaded'] + lang['flash_msg_found'] + ': ' + str(trans_found)
 					flash_color = 'success'
 				else:
-					flash_msg = 'Found: ' + str(trans_found) + ', Saved: ' + str(trans_inserted)
+					flash_msg = lang['flash_msg_found'] + ': ' + str(trans_found) + ', ' + lang['flash_msg_saved'] + ': ' + str(trans_inserted)
 					flash_color = 'danger'
 
 			flash(flash_msg,flash_color)
@@ -109,10 +113,11 @@ def overview(accountid):
 	else:
 		latest_list = Transaction.list_latest_uploads_by_card(accountid,'C') + Transaction.list_latest_uploads_by_card(accountid,'D')
 		selected_year = session['selected_year'] if session.get('selected_year') != None else Transaction.max_year(accountid)
-		chart_hight = Taggroup.list_count(accountid) * 28 if (Taggroup.list_count(accountid) * 28)>140 else 140
+		chart_hight = Taggroup.list_count(accountid) * 26 if (Taggroup.list_count(accountid) * 26)>140 else 140
 		templateData = {
+			'lang' : lang,
 			'accountid' : accountid,
-			'title' : 'Account Summary',
+			'title' : lang['title_account_summary'],
 			'acc_name' : Account.query.filter_by(id = accountid).first(),
 			'cnt_new' : Transaction.cnt_new(accountid),
 			'cnt_all' : Transaction.cnt_all(accountid),
@@ -140,15 +145,14 @@ def summary(accountid,table,what_year):
 		df = Transaction.get_stat_year_df(accountid, what_year)
 		t_d = Transaction.get_statsDate(what_year)
 		dict_data = df.to_dict('index')
-		return_str = '<table class="table table-sm table-striped"><tr style="text-align: right">\
-						<th style="text-align: left">Category</th><th>Total</th><th>Prev Year</th><th>YTD</th><th>%YTD</th><th>Avg Month</th><th>Prev Month</th></tr>'
+		return_str = '<table class="table table-sm table-striped"><thead><tr style="text-align:right"><th style="text-align:left">'+lang['category']+'</th><th>'+lang['total']+'</th><th>'+lang['prev_year']+'</th><th>'+lang['ytd']+'</th><th>%'+lang['ytd']+'</th><th>'+lang['avg_month']+'</th><th>'+lang['prev_month']+'</th></tr></thead><tbody>'
 		s_d = []
 		for key in dict_data:
 			return_str = return_str + '<tr>'
 			for subkey in dict_data[key]:
 				s_d.append(dict_data[key][subkey])
 				if len(s_d)==8:
-					return_str = return_str + '<td style="text-align: left">' + s_d[0] + '</td>'
+					return_str = return_str + '<td style="text-align: left">' + str(s_d[0]) + '</td>'
 					return_str = return_str + '<td style="text-align: right"><a href="/prefilter/'+ str(accountid) +'?taggroup='+ str(int(s_d[1])) + '">' + str(s_d[2]) + '</a></td>'
 					return_str = return_str + '<td style="text-align: right"><a href="/prefilter/'+ str(accountid) +'?taggroup='+ str(int(s_d[1])) + '&datefrom='+ t_d[0] +'&dateto='+ t_d[1] +'">' + str(s_d[3]) + '</a></td>'
 					return_str = return_str + '<td style="text-align: right"><a href="/prefilter/'+ str(accountid) +'?taggroup='+ str(int(s_d[1])) + '&datefrom='+ t_d[2] +'&dateto='+ t_d[3] +'">' + str(s_d[4]) + '</a></td>'
@@ -156,18 +160,19 @@ def summary(accountid,table,what_year):
 					return_str = return_str + '<td style="text-align: right">' + str(s_d[6]) + '</td>'
 					return_str = return_str + '<td style="text-align: right"><a href="/prefilter/'+ str(accountid) +'?taggroup='+ str(int(s_d[1])) + '&datefrom='+ t_d[4] +'&dateto='+ t_d[5] +'">' + str(s_d[7]) + '</a></td>'
 			s_d = []
-		return_str = return_str + '</tr></table>'
-		return jsonify(return_str)
+		return_str = return_str + '</tr></body></table>'
+		return return_str
 
 	elif table=='2':
 		df = Transaction.get_stat_year_by_year(accountid)
 		dict_data = [df.to_dict(), df.to_dict('index')]
-		return_str = '<table class="table table-sm table-striped"><tr><th>Category</th>'
+		return_str = '<table class="table table-sm table-striped"><thead><tr><th>'+lang['category']+'</th>'
 		keys_to_year = []
 		for key in dict_data[0].keys():
-			return_str = return_str + '<th style="text-align: right">' + str(key) + '</th>'
+			key_name = '<th style="text-align: right">'+lang['total']+'</th>' if str(key)=='Total' else '<th style="text-align: right"><button type="button" onclick="gettable_yeardetail(' + str(key) + ')" class="btn btn-outline-dark btn-sm float-end">' + str(key) + '</button></th>'
+			return_str = return_str + key_name
 			keys_to_year.append(key)
-		return_str = return_str + '</tr>'
+		return_str = return_str + '</tr></thead><tbody>'
 
 		for key in dict_data[1].keys():
 			col = str(key[0]) if type(key)==tuple else str(key)
@@ -179,8 +184,66 @@ def summary(accountid,table,what_year):
 				date_from = '&datefrom='+ str(keys_to_year[dict_i]) +'-01-01' if dict_i > 0 else ''
 				date_to   = '&dateto='+   str(keys_to_year[dict_i]) +'-12-31' if dict_i > 0 else ''
 				return_str = return_str + '<td style="text-align: right"><a href="/prefilter/'+ str(accountid) +'?taggroup='+ tag + date_from + date_to +'">' + str(dict_data[1][key][subkey]) + '</a></td>'
-		return_str = return_str + '</tr></table>'
-		return jsonify(return_str)
+		return_str = return_str + '</tr></tbody></table>'
+		return return_str
+
+	elif table=='3':
+		df = Transaction.get_stat_year_detail(accountid, what_year)
+		dict_data = [df.to_dict(), df.to_dict('index')]
+		return_str = '<table class="table table-sm table-striped"><thead><tr><th>'+lang['category']+'</th>'
+		keys_to_year = []
+		month_names = lang['month_arr'].split(',')
+		for key in dict_data[0].keys():
+			key_name = str(what_year) if str(key)=='Total' else str(month_names[key-1])
+			return_str = return_str + '<th style="text-align: right">' + key_name + '</th>'
+			keys_to_year.append(key)
+		return_str = return_str + '</tr></thead><tbody>'
+		month_start_end = {
+			'Total':['-01-01','-12-31'],
+			1:['-01-01','-01-31'],
+			2:['-02-01','-02-28'],
+			3:['-03-01','-03-31'],
+			4:['-04-01','-04-30'],
+			5:['-05-01','-05-31'],
+			6:['-06-01','-06-30'],
+			7:['-07-01','-07-31'],
+			8:['-08-01','-08-31'],
+			9:['-09-01','-09-30'],
+			10:['-10-01','-10-31'],
+			11:['-11-01','-11-30'],
+			12:['-12-01','-12-31']
+		}
+
+		for key in dict_data[1].keys():
+			col = str(key[0]) if type(key)==tuple else str(key)
+			tag = str(key[1]) if type(key)==tuple else ''
+			return_str = return_str + '<tr><td>' + col + '</td>'
+			dict_i = -1
+			for subkey in dict_data[1][key]:
+				dict_i += 1
+				date_from = '&datefrom='+ str(what_year) + str(month_start_end[keys_to_year[dict_i]][0])
+				date_to   = '&dateto=' +  str(what_year) + str(month_start_end[keys_to_year[dict_i]][1])
+				return_str = return_str + '<td style="text-align: right"><a href="/prefilter/'+ str(accountid) +'?taggroup='+ tag + date_from + date_to +'">' + str(dict_data[1][key][subkey]) + '</a></td>'
+		return_str = return_str + '</tr></tbody></table>'
+		return return_str
+
+	else:
+		return jsonify('Hello, World!')
+
+##----------------------------------------------------------------------------------------------------Chart Data
+@app.route("/chart/<accountid>/<chart>", methods=['GET'])
+def chart(accountid,chart):
+	f_from = session['filter_from'] if session.get('filter_from') != None else Transaction.first_date(accountid)
+	f_to = session['filter_to'] if session.get('filter_to') != None else Transaction.last_date(accountid)
+	f_tag = session['filter_tag'] if session.get('filter_tag') != None else Tag.list_tag_id(accountid)
+	if chart == '1':
+		return {"chart": Transaction.chart_detail(accountid, f_from, f_to, f_tag)}
+
+	elif chart == '2':
+		return {"chart": Transaction.chart_line(accountid, f_from, f_to, f_tag)}
+	
+	elif chart == '3':
+		return {"chart": Transaction.chart_weekday(accountid, f_from, f_to, f_tag)}
 
 	else:
 		return jsonify('Hello, World!')
@@ -195,7 +258,7 @@ def listAll(accountid):
 		t_amount = request.form['trans_amnt']
 		t_tag = request.form['trans_tag']
 		Transaction.update_trans(t_id, t_date, t_amount, t_desc, t_tag)
-		flash('Transaction updated.','success')
+		flash(lang['flash_msg_transaction_updated'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='insertTrans':
 		t_id = request.form['trans_ID']
 		t_date = request.form['trans_date']
@@ -207,16 +270,16 @@ def listAll(accountid):
 		Transaction.create_one(t_date, t_amount, t_desc, t_tag, accountid, 'M', 1)
 		if t_adjust==True:
 			Transaction.update_trans_amount(t_id, t_amountprev)
-		flash('New transaction created.','success')
+		flash(lang['flash_msg_transaction_created'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createCondition':
 		t_desc = request.form['trans_desc']
 		t_tag = request.form['trans_tag']
 		Condition.insert_cond(t_desc,t_tag,accountid)
-		flash('New condition created.','success')
+		flash(lang['flash_msg_condition_created'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteTrans':
 		t_id = request.form['trans_ID']
 		Transaction.delete_trans(t_id)
-		flash('Transaction deleted.','warning')
+		flash(lang['flash_msg_transaction_deleted'],'warning')
 
 	page = request.args.get('page', 1, type=int)
 	f_from = session['filter_from'] if session.get('filter_from') != None else Transaction.first_date(accountid)
@@ -226,8 +289,10 @@ def listAll(accountid):
 	has_prev = url_for('listAll', accountid=accountid, page=trns.prev_num) if trns.has_prev else None
 	has_next = url_for('listAll', accountid=accountid, page=trns.next_num) if trns.has_next else None
 	templateData = {
+		'lang' : lang,
+		'currency_symbol' : app.config['CURRENCY_SYMBOL'],
 		'accountid' : accountid,
-		'title' : 'All Transactions',
+		'title' : lang['title_all_transactions'],
 		'url_for_name' : 'listAll',
 		'acc_name' : Account.one_acc(accountid),
 		'tags' : Tag.list_tag(accountid),
@@ -250,7 +315,7 @@ def listNew(accountid):
 		t_amount = request.form['trans_amnt']
 		t_tag = request.form['trans_tag']
 		Transaction.update_trans(t_id, t_date, t_amount, t_desc, t_tag)
-		flash('Transaction updated.','success')
+		flash(lang['flash_msg_transaction_updated'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='insertTrans':
 		t_id = request.form['trans_ID']
 		t_date = request.form['trans_date']
@@ -262,16 +327,16 @@ def listNew(accountid):
 		Transaction.create_one(t_date, t_amount, t_desc, t_tag, accountid, 'M', 1)
 		if t_adjust==True:
 			Transaction.update_trans_amount(t_id, t_amountprev)
-		flash('New transaction created.','success')
+		flash(lang['flash_msg_transaction_created'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createCondition':
 		t_desc = request.form['trans_desc']
 		t_tag = request.form['trans_tag']
 		Condition.insert_cond(t_desc,t_tag,accountid)
-		flash('New condition created.','success')
+		flash(lang['flash_msg_condition_created'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteTrans':
 		t_id = request.form['trans_ID']
 		Transaction.delete_trans(t_id)
-		flash('Transaction deleted.','warning')
+		flash(lang['flash_msg_transaction_deleted'],'warning')
 	
 	page = request.args.get('page', 1, type=int)
 	f_from = session['filter_from'] if session.get('filter_from') != None else Transaction.first_date(accountid)
@@ -282,8 +347,10 @@ def listNew(accountid):
 	has_next = url_for('listNew', accountid=accountid, page=trns.next_num) if trns.has_next else None
 	cnt_new = Transaction.cnt_new(accountid)
 	templateData = {
+		'lang' : lang,
+		'currency_symbol' : app.config['CURRENCY_SYMBOL'],
 		'accountid' : accountid,
-		'title' : 'New Transactions',
+		'title' : lang['title_new_transactions'],
 		'url_for_name' : 'listNew',
 		'acc_name' : Account.one_acc(accountid),
 		'tags' : Tag.list_tag(accountid),
@@ -295,7 +362,7 @@ def listNew(accountid):
 		'page_name' : 'listNew'
 	}
 	if cnt_new[0] == 0:
-		flash('No more new transactions to edit.','warning')
+		flash(lang['flash_msg_no_more_trans'],'warning')
 		return redirect(url_for('overview', accountid=accountid))
 	return render_template('/list.html', pagination=trns, has_prev=has_prev, has_next=has_next, **templateData)
 
@@ -307,7 +374,7 @@ def filter(accountid,page_name='listAll'):
 			session['filter_from'] = request.form['filter_from']
 			session['filter_to']   = request.form['filter_to']
 			session['filter_tag']  = None
-			flash('At least 1 TAG must be selected. Found NONE, selected ALL.','warning')
+			flash(lang['flash_msg_no_tag_selected'],'warning')
 		else:
 			session['filter_from'] = request.form['filter_from']
 			session['filter_to']   = request.form['filter_to']
@@ -335,16 +402,16 @@ def condition(accountid):
 		c_desc = request.form['cond_desc']
 		c_tag = request.form['cond_tag']
 		Condition.update_cond(c_id, c_desc, c_tag)
-		flash('Condition updated.','success')
+		flash(lang['flash_msg_condition_updated'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createCond':
 		c_desc = request.form['cond_desc']
 		c_tag = request.form['cond_tag']
 		Condition.insert_cond(c_desc,c_tag,accountid)
-		flash('New condition created.','success')
+		flash(lang['flash_msg_condition_created'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteCond':
 		c_id = request.form['cond_ID']
 		Condition.delete_cond(c_id)
-		flash('Condition deleted.','warning')
+		flash(lang['flash_msg_condition_deleted'],'warning')
 	
 	page = request.args.get('page', 1, type=int)
 	conds = Condition.list_cond(accountid).paginate(page, app.config['POSTS_PER_PAGE'], False)
@@ -352,8 +419,9 @@ def condition(accountid):
 	has_next = url_for('condition', accountid=accountid, page=conds.next_num) if conds.has_next else None
 	shw_pag = True if Condition.list_count(accountid) > app.config['POSTS_PER_PAGE'] else False
 	templateData = {
+		'lang' : lang,
 		'accountid' : accountid,
-		'title' : 'Tag Conditions',
+		'title' : lang['title_tag_conditions'],
 		'url_for_name' : 'condition',
 		'acc_name' : Account.one_acc(accountid),
 		'tags' : Tag.list_tag(accountid),
@@ -370,21 +438,21 @@ def description(accountid):
 		descfrom = request.form['descfrom']
 		descto = request.form.get('descto')
 		Description.update_desc(id, descfrom, descto)
-		flash('Description updated.','success')
+		flash(lang['flash_msg_descr_updated'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createDesc':
 		descfrom = request.form['descfrom']
 		descto = request.form.get('descto')
 		Description.insert_desc(descfrom, descto, accountid)
-		flash('New description created.','success')
+		flash(lang['flash_msg_descr_created'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='applyDesc':
 		descfrom = request.form['descfrom']
 		descto = request.form.get('descto')
 		Transaction.update_desc(accountid, descfrom, descto)
-		flash('Matching Text Replaced.','success')
+		flash(lang['flash_msg_descr_trans_updated'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteDesc':
 		id = request.form['ID']
 		Description.delete_desc(id)
-		flash('Description deleted.','warning')
+		flash(lang['flash_msg_descr_deleted'],'warning')
 	
 	page = request.args.get('page', 1, type=int)
 	descs = Description.list_desc(accountid).paginate(page, app.config['POSTS_PER_PAGE'], False)
@@ -392,8 +460,9 @@ def description(accountid):
 	has_next = url_for('description', accountid=accountid, page=descs.next_num) if descs.has_next else None
 	shw_pag = True if Description.list_count(accountid) > app.config['POSTS_PER_PAGE'] else False
 	templateData = {
+		'lang' : lang,
 		'accountid' : accountid,
-		'title' : 'Shorten Transaction Description',
+		'title' : lang['title_change_transaction_description'],
 		'url_for_name' : 'description',
 		'acc_name' : Account.one_acc(accountid),
 		'cnt_new' : Transaction.cnt_new(accountid),
@@ -409,18 +478,18 @@ def taggroup(accountid):
 		g_desc = request.form['group_desc']
 		g_col = request.form['color']
 		Taggroup.update_tag_group(g_id, g_desc, g_col)
-		flash('Group updated.','success')
+		flash(lang['flash_msg_group_updated'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createGroup':
 		g_desc = request.form['group_desc']
 		g_col = request.form['color']
 		Taggroup.insert_tag_group(g_desc, g_col, accountid)
 		last_id = Taggroup.list_tgroup_id_one(accountid)
 		Tag.insert_tag(g_desc, last_id, 0,True,0,0,0 )
-		flash('New group created. New tag created','success')
+		flash(lang['flash_msg_group_created'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteGroup':
 		g_id = request.form['group_ID']
 		Taggroup.delete_tag_group(g_id)
-		flash('Group deleted.','warning')
+		flash(lang['flash_msg_group_deleted'],'warning')
 	
 	page = request.args.get('page', 1, type=int)
 	grps = Taggroup.list_tgroup(accountid).paginate(page, app.config['POSTS_PER_PAGE'], False)
@@ -428,8 +497,9 @@ def taggroup(accountid):
 	has_next = url_for('taggroup', accountid=accountid, page=grps.next_num) if grps.has_next else None
 	shw_pag = True if Taggroup.list_count(accountid) > app.config['POSTS_PER_PAGE'] else False
 	templateData = {
+		'lang' : lang,
 		'accountid' : accountid,
-		'title' : 'Tag Groups',
+		'title' : lang['title_tag_groups'],
 		'url_for_name' : 'taggroup',
 		'acc_name' : Account.one_acc(accountid),
 		'cnt_new' : Transaction.cnt_new(accountid),
@@ -450,7 +520,7 @@ def tag(accountid):
 		t_c2 = request.form.get('chart2') != None
 		t_c3 = request.form.get('chart3') != None
 		Tag.update_tag(t_id, t_desc, t_group, t_bal, t_sum, t_c1, t_c2, t_c3)
-		flash('Tag updated.','success')
+		flash(lang['flash_msg_tag_updated'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='createTag':
 		t_desc = request.form['tag_desc']
 		t_group = request.form['tag_group']
@@ -460,11 +530,11 @@ def tag(accountid):
 		t_c2 = request.form.get('chart2') != None
 		t_c3 = request.form.get('chart3') != None
 		Tag.insert_tag(t_desc, t_group, t_bal, t_sum, t_c1, t_c2, t_c3)
-		flash('New tag created.','success')
+		flash(lang['flash_msg_tag_created'],'success')
 	elif request.method=='POST' and request.form['btnSubmit']=='deleteTag':
 		t_id = request.form['tag_ID']
 		Tag.delete_tag(t_id)
-		flash('Tag deleted.','warning')
+		flash(lang['flash_msg_tag_deleted'],'warning')
 	
 	page = request.args.get('page', 1, type=int)
 	tags = Tag.list_tag(accountid).paginate(page, app.config['POSTS_PER_PAGE'], False)
@@ -472,8 +542,9 @@ def tag(accountid):
 	has_next = url_for('tag', accountid=accountid, page=tags.next_num) if tags.has_next else None
 	shw_pag = True if Tag.list_count(accountid) > app.config['POSTS_PER_PAGE'] else False
 	templateData = {
+		'lang' : lang,
 		'accountid' : accountid,
-		'title' : 'Tags',
+		'title' : lang['title_tags'],
 		'url_for_name' : 'tag',
 		'acc_name' : Account.one_acc(accountid),
 		'groups' : Taggroup.list_tgroup(accountid),
@@ -481,19 +552,3 @@ def tag(accountid):
 		'show_pagination' : shw_pag
 	}
 	return render_template('/tag.html', pagination=tags, has_prev=has_prev, has_next=has_next, **templateData)
-
-################################################################################ ADMIN
-""" only enabled on raspberry
-@app.route("/PowerOFF")
-def PowerOFF():
-	print('Called the SHUT-DOWN script')
-	print('Good Bye!')
-	os.system("sudo shutdown -h now")
-
-@app.route("/Reboot")
-def Reboot():
-	print('Called the REBOOT script')
-	print('See you soon!')
-	os.system("sudo reboot now")
-"""
-
