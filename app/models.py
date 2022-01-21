@@ -42,7 +42,7 @@ class Account(db.Model):
 
 	def list_acc():
 		count_transaction = db.session.query(func.count(Transaction.id)).count()
-		"""cte = db.session.query(\
+		cte = db.session.query(\
 							Transaction.acc_id\
 							,Transaction.amount.label('balance')\
 							,func.row_number().over(partition_by=Transaction.acc_id, order_by=desc(Transaction.traDate)).label("rn"))\
@@ -54,9 +54,12 @@ class Account(db.Model):
 			.outerjoin(Transaction)\
 			.group_by(Account.id, Account.accName)\
 			.subquery()
-		return db.session.query(q2.c.id, q2.c.accName, q2.c.upldate, q1.c.balance)\
-			.outerjoin(q1, q2.c.id == q1.c.acc_id)"""
-		return db.session.query(Account.id, Account.accName)
+		#with loading error
+		#return db.session.query(q2.c.id, q2.c.accName, q2.c.upldate, q1.c.balance).outerjoin(q1, q2.c.id == q1.c.acc_id)
+		#simple
+		#return db.session.query(Account.id, Account.accName)
+		#basic
+		return db.session.query(q2.c.id, q2.c.accName, q2.c.upldate)
 
 class Transaction(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -238,7 +241,7 @@ class Transaction(db.Model):
 	def get_statsDate(what_year):
 		gd = Transaction.get_dates(what_year)
 		fopm = first_of_prev_month.replace(year=int(gd[2]))
-		lopm = last_of_prev_month.replace(year=int(gd[2])) #, hour=23, minute=59, second=59 )
+		lopm = last_of_prev_month.replace(year=int(gd[2]))
 		return [str(gd[1])+'-01-01', str(gd[1])+'-12-31', str(gd[0])+'-01-01', str(gd[0])+'-12-31', str(fopm), str(lopm)]
 
 	def get_stat_year(account_id, what_year):
@@ -310,6 +313,36 @@ class Transaction(db.Model):
 		#change FLOAT values to INT
 		return df.fillna(0).astype(int)
 
+	def get_stat_year_detail(account_id, what_year):
+		date_from = str(what_year)+'-01-01'
+		date_to = str(what_year)+'-12-31'
+		q = db.session.query( Tag.tgr_id.label('tag')\
+							, Taggroup.gName.label('Category')\
+							, Transaction.traDate\
+							, func.SUM(Transaction.amount).label('amount'))\
+    		.outerjoin(Tag, Transaction.tag_id == Tag.id)\
+			.outerjoin(Taggroup, Taggroup.id == Tag.tgr_id)\
+    		.filter(Transaction.acc_id == account_id\
+					,Transaction.confirmed == 1\
+					,Transaction.traDate >= date_from\
+					,Transaction.traDate <= date_to)\
+			.group_by(Tag.tgr_id\
+					  ,Taggroup.gName\
+					  ,Transaction.traDate)\
+			.order_by(Tag.tgr_id)
+		df = pd.read_sql_query(q.statement, db.session.bind)
+		#add column 'month' based on 'date'
+		df['Month'] = pd.DatetimeIndex(df['traDate']).month
+		#groupby
+		df = df.groupby(['tag','Category','Month']).sum()
+		#pivot
+		df = pd.pivot_table(df, values = 'amount', index=['Category','tag'], columns = 'Month')\
+			.sort_values(by=['tag'], ascending=True)
+		#add column 'Total', to sum horizontally, per category
+		df.insert(loc=0, column='Total', value=df.sum(axis=1))
+		#change FLOAT values to INT
+		return df.fillna(0).astype(int)
+
 	def chart_monthly_trend(account_id):
 		tags_id = Tag.list_tag_id_notBlnc(account_id)
 		case_expr = case([
@@ -361,6 +394,56 @@ class Transaction(db.Model):
 								)\
 				.outerjoin(month_by_month, month_by_month.c.Dummy == month_avg.c.Dummy)\
 				.order_by(month_by_month.c.orderByCol)
+
+	def chart_detail(account_id,date_from,date_to,sel_tags):
+		res = db.session.query(Taggroup.gName.label('Category')\
+							,func.ABS(func.SUM(Transaction.amount)).label('amount')\
+							,func.strftime('%Y-%m',Transaction.traDate).label('yyyymm')
+							,Taggroup.gColor.label('color'))\
+    		.outerjoin(Tag, Transaction.tag_id == Tag.id)\
+			.outerjoin(Taggroup, Taggroup.id == Tag.tgr_id)\
+    		.filter(Transaction.acc_id == account_id\
+					,Tag.isBlnc == 0\
+					,Tag.inSum == 1\
+					,Transaction.tag_id.in_(sel_tags)\
+					,Transaction.traDate >= date_from\
+					,Transaction.traDate <= date_to\
+					)\
+			.group_by(Taggroup.gName,func.strftime('%Y-%m',Transaction.traDate),Taggroup.gColor)\
+			.order_by(func.strftime('%Y-%m',Transaction.traDate))		
+		return [dict(r) for r in res]
+
+	def chart_line(account_id,date_from,date_to,sel_tags):
+		res = db.session.query(Transaction.traDate\
+							,func.ABS(func.SUM(Transaction.amount)).label('amount'))\
+    		.outerjoin(Tag, Transaction.tag_id == Tag.id)\
+			.outerjoin(Taggroup, Taggroup.id == Tag.tgr_id)\
+    		.filter(Transaction.acc_id == account_id\
+					,Tag.isBlnc == 0\
+					,Tag.inSum == 1\
+					,Transaction.tag_id.in_(sel_tags)\
+					,Transaction.traDate >= date_from\
+					,Transaction.traDate <= date_to\
+					)\
+			.group_by(Transaction.traDate)\
+			.order_by(Transaction.traDate)		
+		return [dict(r) for r in res]
+
+	def chart_weekday(account_id,date_from,date_to,sel_tags):
+		res = db.session.query(func.strftime('%w',Transaction.traDate).label('wkDay')\
+							,func.ABS(func.SUM(Transaction.amount)).label('amount'))\
+    		.outerjoin(Tag, Transaction.tag_id == Tag.id)\
+			.outerjoin(Taggroup, Taggroup.id == Tag.tgr_id)\
+    		.filter(Transaction.acc_id == account_id\
+					,Tag.isBlnc == 0\
+					,Tag.inSum == 1\
+					,Transaction.tag_id.in_(sel_tags)\
+					,Transaction.traDate >= date_from\
+					,Transaction.traDate <= date_to\
+					)\
+			.group_by(func.strftime('%w',Transaction.traDate))\
+			.order_by(func.strftime('%w',Transaction.traDate))		
+		return [dict(r) for r in res]
 		
 class Taggroup(db.Model):
 	id = db.Column(db.Integer, primary_key=True, autoincrement=True)
