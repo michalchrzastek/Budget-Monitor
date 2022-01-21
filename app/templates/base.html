@@ -1,49 +1,45 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Budget Monitor Web App">
-  <meta name="author" content="MichalChrzastek">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/css/tempusdominus-bootstrap-4.min.css" integrity="sha512-PMjWzHVtwxdq7m7GIxBot5vdxUY+5aKP9wpKtvnNBZrVv1srI8tU6xvFMzG8crLNcMj/8Xl/WWmo/oAP/40p1g==" crossorigin="anonymous" />  <link rel="stylesheet" type="text/css" media="screen" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
-  <link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('static', filename='style.css') }}">
-  {% block title %}
-  <title>{% if title %}{{ title }} - Budget Monitor{% else %}Budget Monitor{% endif %}</title>
-  {% endblock %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Budget Monitor Web App">
+    <meta name="author" content="MichalChrzastek">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    {% block title %}
+    <title>{% if title %}{{ title }} - {% endif %}{{ lang['budget_monitor'] }}</title>
+    {% endblock %}
 </head>
-<body>
+<body class="d-flex flex-column h-100" style="background-color:#ededed;">
 
 {% block content %}
 
-    <div class="grid-container">
     {% block navbar %}
-        <header style="z-index:1007;">
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-1">
-                <a class="navbar-brand" href="{{ url_for('index') }}">Home</a>
-
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportContent">
-                    <span class="navbar-toggler-icon"></span>
+    <header>  
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand text-primary" href="{{ url_for('index') }}"><b>BM</b></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
                 </button>
-
                 <div class="collapse navbar-collapse" id="navbarSupportContent">
-                    <ul class="navbar-nav mr-auto">
+                    <ul class="navbar-nav me-auto">
                         {% block subnav1 %}{% endblock %}
                         <li class="nav-item active dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown">Tools</a>
+                            <a class="nav-link " href="#" role="button" data-bs-toggle="dropdown" data-container="body" data-toggle="tooltip" title="{{ lang['tools'] }}"><i class="bi-sliders"></i></a>
                             <div class="dropdown-menu">
                                 {% if accountid %}
-                                <a class="dropdown-item" href="{{ url_for('taggroup', accountid=accountid) }}">Tag Groups</a>
-                                <a class="dropdown-item" href="{{ url_for('tag', accountid=accountid) }}">Tags</a>
-                                <a class="dropdown-item" href="{{ url_for('condition', accountid=accountid) }}">Conditions</a>
-                                <a class="dropdown-item" href="{{ url_for('description', accountid=accountid) }}">Descriptions</a>
+                                <a class="dropdown-item" href="{{ url_for('taggroup', accountid=accountid) }}">{{ lang['tag_groups'] }}</a>
+                                <a class="dropdown-item" href="{{ url_for('tag', accountid=accountid) }}">{{ lang['tags'] }}</a>
+                                <a class="dropdown-item" href="{{ url_for('condition', accountid=accountid) }}">{{ lang['conditions'] }}</a>
+                                <a class="dropdown-item" href="{{ url_for('description', accountid=accountid) }}">{{ lang['descriptions'] }}</a>
                                 {% else %}
                                 <form method="post" class="container-fluid">
-                                    <div class="form-row align-items-center">
-                                        <label class="Account Name:" for="inlineFormInputName">Account Name</label>
+                                    <div class="align-items-center">
+                                        <label class="badge bg-secondary" for="inlineFormInputName">{{ lang['new_acc_name'] }}</label>
                                         <input type="text" class="form-control" id="inlineFormInputName" name="accName" required>
-                                        <button type="submit" name="action" value="addAccount" class="btn btn-primary btn-sm btn-block mt-1">Create</button>
+                                        <button type="submit" name="action" value="addAccount" class="btn btn-primary btn-sm btn-block mt-1">{{ lang['create'] }}</button>
                                     </div>
                                 </form>
                                 {% endif %}
@@ -51,21 +47,22 @@
                         </li>
                     </ul>
                 </div>
-            </nav>
-        </header>
-    {% endblock %}
-        <section class="acc_name">
-            <div class="row p-0">
-                <h5 class="my-1 mx-0"><b>{% if acc_name %}{{ acc_name.accName }} - {% endif %}{{ title }}</b></h5>
             </div>
-        </section>
+        </nav>
+    </header>
+    {% endblock %}
 
-        <main>
+    <main class="flex-shrink-0">
+        <div class="container mt-5">
+            <div class="row">
+                <h5 class="p-0 mt-2" style="color:#a6a6a6;"><b>{% if acc_name %}{{ acc_name.accName }} - {% endif %}{{ title }}</b></h5>
+            </div>
+
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                <div class="alert alert-{{category}} mx-auto" role="alert">{{ message }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endfor %}
             {% endif %}
@@ -73,43 +70,31 @@
 
             {# application content needs to be provided in the app_content block #}
             {% block app_content %}{% endblock %}
-        </main>
+        </div>
+    </main>
 
-    </div>
-    <div class="footer">
-        <span class="text-muted small pl-2">
-            <a href="https://github.com/michalchrzastek/Budget-Monitor">Budget Monitor @ GitHub</a>
-        </span>
-    </div>
+    <footer class="footer mt-auto py-1 bg-dark fixed-bottom">
+        <span class="ms-2"><a href="https://github.com/michalchrzastek/Budget-Monitor" class="text-muted small">Budget Monitor @ GitHub</a></span>
+    </footer>
 {% endblock %}
 
 {% block script %}
-<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js" integrity="sha512-LGXaggshOkD/at6PFNcp2V2unf9LzFq6LE+sChH7ceMTDP0g2kn6Vxwgg7wkPP7AAtX+lmPqPdxB47A0Nz0cMQ==" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/js/tempusdominus-bootstrap-4.min.js" integrity="sha512-2JBCbWoMJPH+Uj7Wq5OLub8E5edWHlTM4ar/YJkZh3plwB2INhhOC3eDoqHm1Za/ZOSksrLlURLoyXVdfQXqwg==" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
+<!-- Popper -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+<!-- Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
 <script type="text/javascript">
 
-    //enable black styling for tooltip
-    $(document).ready(function(){
-        $('[rel=tooltip]').tooltip({container:'body'});
-        $('[data-toggle="tooltip"]').tooltip();
-    });
-
-    //populate .date field => date picker
-    $('.date').each(function(){
-        var idx = $(this).data('idx');
-        $('#datetimepicker'+idx).datetimepicker({
-        weekstart:1,
-        locale:'en-gb',
-        allowInputToggle: true,
-        useCurrent: false,
-        format: 'YYYY-MM-DD'
-        });
-    });
+function getAjax(url, success){
+    var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+    xhr.open('GET', 'http://localhost:5000/'+url);
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState>3 && xhr.status==200) success(xhr.responseText);
+    };
+    xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
+    xhr.send();
+    return xhr;
+}
 </script>
 {% block page_script %}{% endblock %}
 {% endblock %}
-
-
