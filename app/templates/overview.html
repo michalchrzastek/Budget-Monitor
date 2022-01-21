@@ -2,24 +2,22 @@
 
 {% block subnav1 %}
 {% if cnt_all.cnt > 0 %}
-<li class="nav-item active"><a class="nav-link" href="{{ url_for('listAll', accountid=accountid) }}">All</a></li>
+<li class="nav-item active"><a class="nav-link" href="{{ url_for('listAll', accountid=accountid) }}">{{ lang['all'] }}</a></li>
 {% endif %}
 {% if cnt_new.cnt > 0 %}
-<li class="nav-item active"><a class="nav-link" href="{{ url_for('listNew', accountid=accountid) }}">New</a></li>
+<li class="nav-item active"><a class="nav-link" href="{{ url_for('listNew', accountid=accountid) }}">{{ lang['new'] }}</a></li>
 {% endif %}
-<li class="nav-item active"><a class="nav-link" href="" data-toggle="modal" data-target="#uploadModal">Upload Statement</a></li>
+<li class="nav-item active"><a class="nav-link" href="" data-bs-toggle="modal" data-bs-target="#uploadModal">{{ lang['upload_statement'] }}</a></li>
 {% endblock %}
 
 {% block app_content %}
 <!-- Modal UPLOAD STATEMENT -->
-<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="uploadModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header bg-primary text-light">
-        <h4 class="modal-title" id="exampleModalLabel">Select Statement File (*.qif)</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true" class="text-light">&times;</span>
-        </button>
+      <div class="modal-header bg-primary">
+        <h4 class="modal-title text-light" id="exampleModalLabel">{{ lang['msg_select_stmt_file'] }} (*.qif)</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form class="form" method="post" enctype="multipart/form-data" accept="text/plain">
@@ -27,19 +25,19 @@
             <div class="col-sm-8"><input type="file" name="file" class="form-control" required></div>
             <div class="col-sm-2">
               <input class="form-check-input" type="radio" name="card" id="credit" value="C" required>
-              <label class="form-check-label" for="credit">Credit</label>
+              <label class="form-check-label" for="credit">{{ lang['credit'] }}</label>
             </div>
             <div class="col-sm-2">
               <input class="form-check-input" type="radio" name="card" id="debit" value="D" required>
-              <label class="form-check-label" for="debit">Debit</label>
+              <label class="form-check-label" for="debit">{{ lang['debit'] }}</label>
             </div>
           </div>
           <button type="submit" class="btn btn-success d-none" id="btnUploadStatement" name="btnSubmit" value="uploadStatement">Upload Statement</button>
         </form>
         <div class="row px-3 mt-3">
           <table class="table table-sm table-striped small">
-            <thead class="thead-dark">
-              <tr><th>Card</th><th>Transaction</th><th>Date</th><th>Amount</th></tr>
+            <thead class="table-dark">
+              <tr><th>{{ lang['card'] }}</th><th>{{ lang['transaction'] }}</th><th>{{ lang['date'] }}</th><th>{{ lang['amount'] }}</th></tr>
             </thead>
             <tbody>
               {% for row in latest %}
@@ -50,7 +48,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('btnUploadStatement').click()">Upload</button>
+        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('btnUploadStatement').click()">{{ lang['upload'] }}</button>
       </div>
     </div>
   </div>
@@ -60,30 +58,36 @@
 <div class="row mt-3">
   {% if chart_count[0] > 0 %}
   <div class="col-sm p-2 bg-white">
+    <label class="badge bg-secondary">
     {% for c in chart1 %}
       {{ c.gName }}
     {% endfor %}
-    ({{chart_months[0]}} months)
+    ({{chart_months[0]}} {{ lang['chrt_lbl_months'] }})
+    </label>
     <div class="item-panel-body p-2 bg-white"><canvas id="chart_c0" height="130"></canvas></div>
   </div>
   {% endif %}
 
   {% if chart_count[1] %}
   <div class="col-sm p-2 bg-white">
+    <label class="badge bg-secondary">
     {% for c in chart2 %}
       {{ c.gName }}
     {% endfor %}
-    ({{chart_months[1]}} months)
+    ({{chart_months[1]}} {{ lang['chrt_lbl_months'] }})
+    </label>
     <div class="item-panel-body p-2 bg-white"><canvas id="chart_c1" height="130"></canvas></div>
   </div>
   {% endif %}
 
   {% if chart_count[2] %}
   <div class="col-sm p-2 bg-white">
+    <label class="badge bg-secondary">
     {% for c in chart3 %}
       {{ c.gName }}
     {% endfor %}
-    ({{chart_months[2]}} months)
+    ({{chart_months[2]}} {{ lang['chrt_lbl_months'] }})
+    </label>
     <div class="item-panel-body p-2 bg-white"><canvas id="chart_c2" height="130"></canvas></div>
   </div>
   {% endif %}
@@ -92,53 +96,59 @@
 {% if cnt_all.cnt>0 %}
 <div class="row mt-3">
   <div class="col-sm-12 p-0">
-    <div class="item-panel-title p-2 bg-white">Monthly Trend (In vs Out)</div>
+    <div class="item-panel-title p-2 bg-white"><label class="badge bg-secondary">{{ lang['chrt_lbl_monthly_trend_in_out'] }}</label></div>
     <div class="item-panel-body p-2 bg-white"><canvas id="chart_monthly_trend" height="50"></canvas></div>
   </div>
 </div>
 
-<div class="row mt-3">
+<div class="row my-3 bg-white">
   <div class="col-sm-4 p-0">
-    <div class="item-panel-title mr-2 p-2 bg-white">Avg Month vs Prev Month</div>
-    <div class="item-panel-body mr-2 p-2 bg-white"><canvas id="chart_avg_month" height="{{ chart_avg_month_height }}"></canvas></div>
+    <div class="item-panel-title me-2 p-2 bg-white"><label class="badge bg-secondary">{{ lang['avg_month'] }} vs {{ lang['prev_month'] }}</label></div>
+    <div class="item-panel-body me-2 p-2 bg-white"><canvas id="chart_avg_month" height="{{ chart_avg_month_height }}"></canvas></div>
   </div>
   <div class="col-sm-8 p-0 mb-4">
-    <div class="item-panel-title ml-2 p-2 bg-white">
-      <form method="post" class="form-inline ml-2">
-        <div class="col-sm-2 p-0">Summary Table</div>
-        <div class="col-sm-1 p-0">
-          <select class="form-control form-control-sm" name="selectedYear" id="selectedYear" onchange="selectedYearFilter()">
-          {% for y in years %}
-            {% if selected_year|int == y.year|int %}
-              <option value="{{ y.year|round|int }}" selected>{{ y.year|int }}</option>
-            {% else %}
-              <option value="{{ y.year|round|int }}">{{ y.year|int }}</option>
-            {% endif %}
-          {% endfor %}
-          </select>
-        </div>
-        <div class="col-sm-1 p-0"><button type="submit" class="btn btn-outline-primary btn-sm d-none" name="btnSubmit" value="applyFilter" id="applyFilter"><span class="fa fa-filter"></span></button></div>
-        <div class="col-sm-8 p-0">
-          <button type="button" id="btn_gettable_yby" class="btn btn-outline-primary btn-sm float-right"><span class="fa fa-exchange-alt"></span></button>
-          <button type="button" id="btn_gettable_year" class="btn btn-outline-primary btn-sm float-right d-none"><span class="fa fa-exchange-alt"></span></button>
+    <div class="item-panel-title p-2 bg-white">
+      <form method="post">
+        <div class="row">
+          <div class="col-sm-2"><label class="badge bg-secondary">{{ lang['chrt_lbl_summary_table'] }}</label></div>
+          <div class="col-sm-2 p-0">
+            <div class="input-group">
+              <select class="form-select form-select-sm float-end" name="selectedYear" id="selectedYear" onchange="selectedYearFilter()">
+              {% for y in years %}
+                {% if selected_year|int == y.year|int %}
+                  <option value="{{ y.year|round|int }}" selected>{{ y.year|int }}</option>
+                {% else %}
+                  <option value="{{ y.year|round|int }}">{{ y.year|int }}</option>
+                {% endif %}
+              {% endfor %}
+              </select>
+              <button type="submit" class="btn btn-outline-primary btn-sm d-none" name="btnSubmit" value="applyFilter" id="applyFilter"><i class="bi-filter"></i></button>
+              <button type="button" onclick="gettable_year()" id="btn_gettable_year" class="btn btn-outline-primary btn-sm float-end d-none"><i class="bi-shuffle"></i></button>
+              <button type="button" onclick="gettable_yby()" id="btn_gettable_yby" class="btn btn-outline-primary btn-sm float-end"><i class="bi-shuffle"></i></button>
+            </div>
+          </div>
         </div>
       </form>
     </div>
-    <div class="item-panel-body ml-2 px-2 pb-1 bg-white" id="table_panel">
-    </div>
+    <div class="item-panel-body px-2 pb-1 bg-white" id="table_panel"></div>
   </div>
 </div>
 
+
+
 {% else %}
 <div class="row p-3">
-  <p class="h4 text-muted">No transactions, please upload a statement.</p>
+  <p class="h4 text-muted">{{ lang['msg_no_trans'] }}</p>
 </div>
 {% endif %}
 
 {% endblock %}
 {% block page_script %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
-<script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js" integrity="sha512-TW5s0IT/IppJtu76UbysrBH9Hy/5X41OTAbQuffZFU6lQ1rdcLHzpU5BzVvr/YFykoiMYZVWlr/PX1mDcfM9Qg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript">
+
+  const months_labels = "{{ lang['month_arr'] }}";
+  months_labels.substring(1,-1).replace("&#39;","'").split(',');
 
   //apply filter for year selection, click hidden button
   function selectedYearFilter(){
@@ -146,24 +156,33 @@
   }
 
   //load table summary on button click
-  $('#btn_gettable_yby').on('click', function(){
-    $.getJSON('/summary/{{ accountid }}/2/{{ selected_year|int }}',
-      function(data){
-        $('#table_panel').html(data);
-        $('#btn_gettable_yby').toggleClass('d-none');
-        $('#btn_gettable_year').toggleClass('d-none');
+  function gettable_yby(){
+    getAjax('summary/{{ accountid }}/2/{{ selected_year|int }}', function(data){
+        document.getElementById("table_panel").innerHTML = data;
+        document.getElementById("selectedYear").classList.add('d-none');
+        document.getElementById("btn_gettable_yby").classList.add('d-none');
+        document.getElementById("btn_gettable_year").classList.remove('d-none');
     });
-  });
-  $('#btn_gettable_year').on('click', function(){
-    $.getJSON('/summary/{{ accountid }}/1/{{ selected_year|int }}',
-      function(data){
-        $('#table_panel').html(data);
-        $('#btn_gettable_yby').toggleClass('d-none');
-        $('#btn_gettable_year').toggleClass('d-none');
+  };
+  function gettable_year(){
+    getAjax('summary/{{ accountid }}/1/{{ selected_year|int }}', function(data){
+        document.getElementById("table_panel").innerHTML = data;
+        document.getElementById("selectedYear").classList.remove('d-none');
+        document.getElementById("btn_gettable_year").classList.add('d-none');
+        document.getElementById("btn_gettable_yby").classList.remove('d-none');
     });
-  });
+  };
+  function gettable_yeardetail(selyear){
+    getAjax('summary/{{ accountid }}/3/'+selyear, function(data){
+        document.getElementById("table_panel").innerHTML = data;
+        document.getElementById("selectedYear").classList.add('d-none');
+        document.getElementById("btn_gettable_year").classList.add('d-none');
+        document.getElementById("btn_gettable_yby").classList.remove('d-none');
+    });
+  };
+
   //on page load, call default table view
-  document.getElementById("btn_gettable_year").click();
+  gettable_year();
 
   //chart1 START
   {% if chart_count[0] > 0 %}  
@@ -218,11 +237,13 @@
     },
       type: 'bar',
       options: {
-        legend: {
-          labels: {
-            filter: function (legendItem, chartData) {
-              return (chartData.datasets[legendItem.datasetIndex].hiddenLegend);
-            },
+        plugins: {
+          legend: {
+            labels: {
+              filter: function (legendItem, chartData) {
+                return (chartData.datasets[legendItem.datasetIndex].hiddenLegend);
+              }
+            }
           }
         },
         responsive: true,
@@ -234,11 +255,9 @@
           intersect: true
         },
         scales: {
-          yAxes: [{
-            ticks: {
+          y: {
               beginAtZero: true
             }
-          }]
         }
       }
   };
@@ -297,11 +316,13 @@
     },
     type: 'bar',
       options: {
-        legend: {
-          labels: {
-            filter: function (legendItem, chartData) {
-              return (chartData.datasets[legendItem.datasetIndex].hiddenLegend);
-            },
+        plugins: {
+          legend: {
+            labels: {
+              filter: function (legendItem, chartData) {
+                return (chartData.datasets[legendItem.datasetIndex].hiddenLegend);
+              }
+            }
           }
         },
         responsive: true,
@@ -313,11 +334,9 @@
           intersect: true
         },
         scales: {
-          yAxes: [{
-            ticks: {
+          y: {
               beginAtZero: true
             }
-          }]
         }
       }
   };
@@ -376,11 +395,13 @@
     },
     type: 'bar',
       options: {
-        legend: {
-          labels: {
-            filter: function (legendItem, chartData) {
-              return (chartData.datasets[legendItem.datasetIndex].hiddenLegend);
-            },
+        plugins: {
+          legend: {
+            labels: {
+              filter: function (legendItem, chartData) {
+                return (chartData.datasets[legendItem.datasetIndex].hiddenLegend);
+              }
+            }
           }
         },
         responsive: true,
@@ -392,11 +413,9 @@
           intersect: true
         },
         scales: {
-          yAxes: [{
-            ticks: {
+          y: {
               beginAtZero: true
             }
-          }]
         }
       }
   };
@@ -450,13 +469,15 @@
     type: 'bar',
     options: {
       responsive: true,
-      legend: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
       scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
-          }
-        }]
+        y: {
+          beginAtZero: true
+        }
       },
       tooltips: {
         mode: 'index',
@@ -465,10 +486,10 @@
     }
 	};
   //chart_monthly_trend END
- //chart_avg_month START
+  //chart_avg_month START
   var config_avg_month = {
     data: {
-			labels: ['Avg Month', 'Prev Month'],
+			labels: ['{{ lang['avg_month'] }}', '{{ lang['prev_month'] }}'],
 			datasets: [
       {% for c in chart_avg_month %}
         {
@@ -492,12 +513,12 @@
       },
       responsive: true,
       scales: {
-        xAxes: [{
+        x: {
           stacked: true,
-        }],
-        yAxes: [{
+        },
+        y: {
           stacked: true
-        }]
+        }
       }
     }
 	};
