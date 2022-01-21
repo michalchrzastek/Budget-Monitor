@@ -4,55 +4,60 @@
 {% endblock %}
 
 {% block app_content %}
-<div class="card-deck">
-{% for account in accounts %}
-<div class="card text-white bg-dark mb-3" style="max-width:18rem;min-width:14rem;">
-  <div class="card-header">{{ account.accName }}<button type="button" onclick="deleteAcc({{ account.id }})" class="btn btn-sm btn-outline-warning float-right"><span class="fa fa-trash"></span></button></div>
-  <div class="card-body">
-    <h5 class="card-title">{% if account.balance %}Balance: £{{ account.balance|int }}{% endif %}&nbsp;</h5>
-    <p class="card-text">Last Upload: {{ account.upldate | replace("None","Never")}}</p>
-    <a href="{{ url_for('overview', accountid=account.id) }}" class="btn btn-primary">View</a>
-  </div>
-</div>
-{% endfor %}
-</div>
-
-<div class="modal" tabindex="-1" role="dialog" id="modal">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-danger">
-        <h5 class="modal-title text-light">Confirm Delete</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+<div class="row mt-3 row-cols-4 row-cols-md-4 g-4">
+  {% for account in accounts %}
+  <div class="col">
+    <div class="card" style="width:18rem;">
+      <div class="card-header bg-dark text-light">
+        {{ account.accName }}
+        <button type="button" data-bs-accountid="{{ account.id }}" data-bs-toggle="modal" data-bs-target="#deleteModal" class="btn btn-sm btn-outline-warning float-end"><i class="bi-trash"></i></button>
       </div>
-      <div class="modal-body" id="modalbody">
-        <p>Are you sure you want to delete this account and all associated data?</p>
-        <p class="text-danger"><b>This cannot be reversed!</b></p>
-        <form method="post">
-          <input name="del_acc" type="number" id="del_acc_id" class="d-none" required>
-          <button type="submit" name="action" value="deleteAccount" class="btn btn-danger mt-5">Delete</button>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      <div class="card-body">
+        <h5 class="card-title">{% if account.balance %}{{ lang['balance'] }}: £{{ account.balance|int }}{% endif %}&nbsp;</h5>
+        <p class="card-text">{{ lang['last_upload'] }}: {{ account.upldate | replace("None","Never")}}</p>
+        <a href="{{ url_for('overview', accountid=account.id) }}" class="btn btn-primary">{{ lang['view'] }}</a>
       </div>
     </div>
   </div>
+  {% endfor %}
 </div>
+
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary">
+          <h5 class="modal-title text-light" id="deleteModalLabel">{{ lang['confirm_delete'] }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>{{ lang['delete_acc_msg1'] }}</p>
+          <p class="text-danger"><b>{{ lang['delete_acc_msg2'] }}</b></p>
+          <form method="post">
+            <input name="del_acc" type="number" id="del_acc_id" class="d-none" required>
+            <button type="submit" name="action" value="deleteAccount" class="btn btn-danger mt-5">{{ lang['delete'] }}</button>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ lang['close'] }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}
 {% block page_script %}
 <script>
+
 //show Account delete modal
-  function deleteAcc(accid){
-    $('#modal').modal('show');
-    document.getElementById("del_acc_id").value = accid;
-  }
+  var myModal = document.getElementById('deleteModal');
+  myModal.addEventListener('show.bs.modal', function(event){
+    // Button that triggered the modal
+    var button = event.relatedTarget;
+    // Extract info from data-bs-* attributes
+    var accountid = button.getAttribute('data-bs-accountid');
+    // Update the modal's content.
+    document.getElementById('del_acc_id').value = accountid;
+  })
+
 </script>
 {% endblock %}
-
-
-
-
-
