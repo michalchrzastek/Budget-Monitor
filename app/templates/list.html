@@ -158,7 +158,6 @@
 <script type="text/javascript">
 
 //populate .date field => date picker
-/*
   const dateFields = document.querySelectorAll(".date");
   dateFields.forEach(function(item){
     var idx = item.getAttribute("data-idx");
@@ -172,10 +171,12 @@
           decades: true,
           year: true,
           month: true,
-          date: true,
-          hours: false,
+          date: true
+          /*
+          2022-03-17, temporarly removed, otherwise the widget is frozen
+          ,hours: false,
           minutes: false,
-          seconds: false
+          seconds: false*/
         },
         icons: {
           time: 'bi bi-clock',
@@ -191,7 +192,7 @@
       }
     });
   });
-*/
+
 
 //create a map of all tags
   const tag_map = new Map();
