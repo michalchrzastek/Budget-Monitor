@@ -43,8 +43,8 @@ def overview(accountid):
 			return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 		card = request.form['card']
-		file = request.files['file']
-		if file and not allowed_file(file.filename):
+		fileitem = request.files['file']
+		if fileitem and not allowed_file(fileitem.filename):
 			flash(lang['flash_msg_wrong_file'], 'warning')
 			return redirect(url_for('overview', accountid=accountid))
 		else:
@@ -60,7 +60,7 @@ def overview(accountid):
 			for desc in descriptions:
 				desc_dict[desc.descfrom] = desc.descto
 
-			data_file = os.path.join(app.config['DOWNLOADED_STATEMENT'], file.filename)
+			data_file = os.path.join(app.config['DOWNLOADED_STATEMENT'], fileitem.filename)
 			with open(data_file, mode='r', encoding = "ISO-8859-1") as fr:
 				data = fr.read()
 				#cleanse data and combine into 1 line per transaction
@@ -245,6 +245,9 @@ def chart(accountid,chart):
 	elif chart == '3':
 		return {"chart": Transaction.chart_weekday(accountid, f_from, f_to, f_tag)}
 
+	elif chart == '4':
+		return {"chart":Transaction.chart_fuel(accountid, f_from, f_to, app.config['FUEL_TAG_NAME'])}
+	
 	else:
 		return jsonify('Hello, World!')
 
@@ -285,7 +288,7 @@ def listAll(accountid):
 	f_from = session['filter_from'] if session.get('filter_from') != None else Transaction.first_date(accountid)
 	f_to = session['filter_to'] if session.get('filter_to') != None else Transaction.last_date(accountid)
 	f_tag = session['filter_tag'] if session.get('filter_tag') != None else Tag.list_tag_id(accountid)
-	trns = Transaction.list_filtered(accountid, f_from, f_to, f_tag).paginate(page, app.config['POSTS_PER_PAGE'], False)
+	trns = Transaction.list_filtered(accountid, f_from, f_to, f_tag).paginate(page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
 	has_prev = url_for('listAll', accountid=accountid, page=trns.prev_num) if trns.has_prev else None
 	has_next = url_for('listAll', accountid=accountid, page=trns.next_num) if trns.has_next else None
 	templateData = {
@@ -301,7 +304,8 @@ def listAll(accountid):
 		'filter_to' : f_to,
 		'filter_tag' : [f_tag],
 		'cnt_new' : Transaction.cnt_new(accountid),
-		'page_name' : 'listAll'
+		'page_name' : 'listAll',
+		'duplicated' : Transaction.list_duplicated(accountid)
 	}
 	return render_template('/list.html', pagination=trns, has_prev=has_prev, has_next=has_next, **templateData)
 
@@ -342,7 +346,7 @@ def listNew(accountid):
 	f_from = session['filter_from'] if session.get('filter_from') != None else Transaction.first_date(accountid)
 	f_to = session['filter_to'] if session.get('filter_to') != None else Transaction.last_date(accountid)
 	f_tag = session['filter_tag'] if session.get('filter_tag') != None else Tag.list_tag_id(accountid)
-	trns = Transaction.list_filtered_new(accountid, f_from, f_to).paginate(page, app.config['POSTS_PER_PAGE'], False)
+	trns = Transaction.list_filtered_new(accountid, f_from, f_to).paginate(page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
 	has_prev = url_for('listNew', accountid=accountid, page=trns.prev_num) if trns.has_prev else None
 	has_next = url_for('listNew', accountid=accountid, page=trns.next_num) if trns.has_next else None
 	cnt_new = Transaction.cnt_new(accountid)
@@ -414,7 +418,7 @@ def condition(accountid):
 		flash(lang['flash_msg_condition_deleted'],'warning')
 	
 	page = request.args.get('page', 1, type=int)
-	conds = Condition.list_cond(accountid).paginate(page, app.config['POSTS_PER_PAGE'], False)
+	conds = Condition.list_cond(accountid).paginate(page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
 	has_prev = url_for('condition', accountid=accountid, page=conds.prev_num) if conds.has_prev else None
 	has_next = url_for('condition', accountid=accountid, page=conds.next_num) if conds.has_next else None
 	shw_pag = True if Condition.list_count(accountid) > app.config['POSTS_PER_PAGE'] else False
@@ -455,7 +459,7 @@ def description(accountid):
 		flash(lang['flash_msg_descr_deleted'],'warning')
 	
 	page = request.args.get('page', 1, type=int)
-	descs = Description.list_desc(accountid).paginate(page, app.config['POSTS_PER_PAGE'], False)
+	descs = Description.list_desc(accountid).paginate(page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
 	has_prev = url_for('description', accountid=accountid, page=descs.prev_num) if descs.has_prev else None
 	has_next = url_for('description', accountid=accountid, page=descs.next_num) if descs.has_next else None
 	shw_pag = True if Description.list_count(accountid) > app.config['POSTS_PER_PAGE'] else False
@@ -492,7 +496,7 @@ def taggroup(accountid):
 		flash(lang['flash_msg_group_deleted'],'warning')
 	
 	page = request.args.get('page', 1, type=int)
-	grps = Taggroup.list_tgroup(accountid).paginate(page, app.config['POSTS_PER_PAGE'], False)
+	grps = Taggroup.list_tgroup(accountid).paginate(page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
 	has_prev = url_for('taggroup', accountid=accountid, page=grps.prev_num) if grps.has_prev else None
 	has_next = url_for('taggroup', accountid=accountid, page=grps.next_num) if grps.has_next else None
 	shw_pag = True if Taggroup.list_count(accountid) > app.config['POSTS_PER_PAGE'] else False
@@ -537,7 +541,7 @@ def tag(accountid):
 		flash(lang['flash_msg_tag_deleted'],'warning')
 	
 	page = request.args.get('page', 1, type=int)
-	tags = Tag.list_tag(accountid).paginate(page, app.config['POSTS_PER_PAGE'], False)
+	tags = Tag.list_tag(accountid).paginate(page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
 	has_prev= url_for('tag', accountid=accountid, page=tags.prev_num) if tags.has_prev else None
 	has_next = url_for('tag', accountid=accountid, page=tags.next_num) if tags.has_next else None
 	shw_pag = True if Tag.list_count(accountid) > app.config['POSTS_PER_PAGE'] else False
