@@ -107,9 +107,10 @@
           <span class="input-group-text">{{ lang['total'] }} {{ currency_symbol }}{{ cnt_avg_sum.a_sum|int }}</span>
           <button type="submit" class="btn btn-outline-success btn-sm" name="btnSubmit" data-container="body" data-toggle="tooltip" title="{{ lang['btn_apply_filter'] }}"><i class="bi-funnel"></i></button>
           <a href="{{ url_for('filter', accountid=accountid, page_name=page_name) }}" class="btn btn-outline-danger btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['btn_reset_filter'] }}"><i class="bi-eraser"></i></a>
-          <button type="button" class="btn btn-outline-secondary btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['btn_chart_radar'] }}" data-bs-chart="1" data-bs-toggle="modal" data-bs-target="#Modal_chart"><i class="bi-pie-chart-fill"></i></button>
-          <button type="button" class="btn btn-outline-secondary btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['btn_chart_line'] }}" data-bs-chart="2" data-bs-toggle="modal" data-bs-target="#Modal_chart"><i class="bi-graph-up"></i></button>
-          <button type="button" class="btn btn-outline-secondary btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['btn_chart_bar'] }}" data-bs-chart="3" data-bs-toggle="modal" data-bs-target="#Modal_chart"><i class="bi-bar-chart-fill"></i></button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['chrt_lbl_fuel'] }}" data-bs-chart="4" data-bs-toggle="modal" data-bs-target="#Modal_chart"><i class="bi-fuel-pump-fill"></i></button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['chrt_lbl_detail'] }}" data-bs-chart="1" data-bs-toggle="modal" data-bs-target="#Modal_chart"><i class="bi-pie-chart-fill"></i></button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['chrt_lbl_timeline'] }}" data-bs-chart="2" data-bs-toggle="modal" data-bs-target="#Modal_chart"><i class="bi-graph-up"></i></button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['chrt_lbl_weekdays'] }}" data-bs-chart="3" data-bs-toggle="modal" data-bs-target="#Modal_chart"><i class="bi-bar-chart-fill"></i></button>
         </div>
       </div>
 	  </div>     
@@ -147,51 +148,37 @@
 {% endfor %}
 <br>
 
+<table>
+    {% for t in duplicated %}
+    <tr><td>{{ t.traDate }}</td><td>{{ t.desc }}</td><td>{{ t.amount }}</td></tr>
+    {% endfor %}
+</table>
+
 {% endblock %}
 {% block page_script %}
 <!-- Tempus Dominus JavaScript -->
-<script src="https://cdn.jsdelivr.net/gh/Eonasdan/tempus-dominus@master/dist/js/tempus-dominus.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@eonasdan/tempus-dominus@6.2.10/dist/js/tempus-dominus.min.js" crossorigin="anonymous"></script>
 <!-- Tempus Dominus Styles -->
-<link href="https://cdn.jsdelivr.net/gh/Eonasdan/tempus-dominus@master/dist/css/tempus-dominus.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@eonasdan/tempus-dominus@6.2.10/dist/css/tempus-dominus.min.css" crossorigin="anonymous">
 <!-- Chart.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js" integrity="sha512-TW5s0IT/IppJtu76UbysrBH9Hy/5X41OTAbQuffZFU6lQ1rdcLHzpU5BzVvr/YFykoiMYZVWlr/PX1mDcfM9Qg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script type="text/javascript">
-
+//hooks: {inputFormat:(context, date) => {   return date.toISOString().substr(0,10)      }},
 //populate .date field => date picker
+/*
   const dateFields = document.querySelectorAll(".date");
   dateFields.forEach(function(item){
     var idx = item.getAttribute("data-idx");
     new tempusDominus.TempusDominus(document.getElementById("datetimepicker"+idx),{
-      hooks: {inputFormat:(context, date) => { 
-        return date.toISOString().substr(0,10)
-      }},
+      localization:{
+        format: 'yyyy-MM-dd'
+      },
       display: {
-        viewMode: 'clock',
-        components: {
-          decades: true,
-          year: true,
-          month: true,
-          date: true
-          /*
-          2022-03-17, temporarly removed, otherwise the widget is frozen
-          ,hours: false,
-          minutes: false,
-          seconds: false*/
-        },
-        icons: {
-          time: 'bi bi-clock',
-          date: 'bi bi-calendar',
-          up: 'bi bi-arrow-up',
-          down: 'bi bi-arrow-down',
-          previous: 'bi bi-chevron-left',
-          next: 'bi bi-chevron-right',
-          today: 'bi bi-calendar-check',
-          clear: 'bi bi-trash',
-          close: 'bi bi-x'
-        }
-      }
+        viewMode: 'calendar'
+      }      
     });
   });
+  */
 
 
 //create a map of all tags
@@ -366,7 +353,7 @@
         var res = JSON.parse(data);
         var lbl = [];
         var dta = [];
-        for (var i=0; i<res['chart'].length; i++) {
+        for(var i=0; i<res['chart'].length; i++){
           var dTxt = res['chart'][i]['traDate'].substring(5,16)
           lbl.push(dTxt);
           dta.push(res['chart'][i]['amount']);
@@ -401,7 +388,7 @@
         var res = JSON.parse(data);
         var lbl = [];
         var dta = [];
-        for (var i=0; i<res['chart'].length; i++) {
+        for(var i=0; i<res['chart'].length; i++){
           lbl.push(wkDayArr[res['chart'][i]['wkDay']]);
           dta.push(res['chart'][i]['amount']);
         }
@@ -423,6 +410,91 @@
             plugins: {
               legend: {
                 display: false
+              }
+            }
+          }
+        });
+      });
+    }else if(chrt==4){
+      getAjax('chart/{{ accountid }}/4', function(data){
+        var res = JSON.parse(data);
+        var lbl = [];
+        var dta1 = [];
+        var dta2 = [];
+        var dta3 = [];
+        var dta4 = [];
+        var dta5 = [];
+        var dta6 = [];
+        for(var i=0; i<res['chart'].length; i++){
+          var dTxt = res['chart'][i]['traDate'];
+          lbl.push(dTxt);
+          dta1.push(res['chart'][i]['mpg']);
+          dta2.push(res['chart'][i]['lp100']);
+          dta3.push(res['chart'][i]['perLtr']);
+          dta4.push(res['chart'][i]['litres']);
+          dta5.push(res['chart'][i]['miles']);
+          dta6.push(res['chart'][i]['amount']);
+        }
+        var totalLitres = Math.round(dta4.reduce((partialSum,a) => partialSum + a, 0))*-1;
+        var totalMiles = dta5.reduce((partialSum,a) => partialSum + a, 0);
+        var totalCost = Math.round(dta6.reduce((partialSum,a) => partialSum + a, 0));
+        var avgMPG = ((dta1.reduce((partialSum,a) => partialSum + a, 0))/i).toFixed(2);
+        var avgLtr = ((dta2.reduce((partialSum,a) => partialSum + a, 0))/i).toFixed(2);
+        document.getElementById("chartModalLabel").innerText = "{{ lang['chrt_lbl_fuel'] }} || {{ lang['chrt_lbl_litres'] }}:"+totalLitres+" || {{ lang['chrt_lbl_miles'] }}:"+totalMiles+" || {{ lang['chrt_lbl_cost'] }}:"+totalCost+" || MPG:"+avgMPG+" || Ltr/100km:"+avgLtr ;
+        const myChart1 = new Chart(ctx, {
+          type: 'line',
+          data: {
+              labels: lbl,
+              datasets: [{
+                  label: 'MPG',
+                  yAxisID: 'MPG',
+                  data: dta1,
+                  backgroundColor: '#74a7fe',
+                  borderColor: '#74a7fe',
+                  borderWidth: 1
+              },{
+                  label: 'L/100km',
+                  yAxisID: 'L100km',
+                  data: dta2,
+                  backgroundColor: '#74fef9',
+                  borderColor: '#74fef9',
+                  borderWidth: 1
+              },{
+                  label: '£/ltr',
+                  yAxisID: 'perlitre',
+                  data: dta3,
+                  backgroundColor: '#FF6384',
+                  borderColor: '#FF6384',
+                  borderWidth: 1,
+                  hidden: true
+              }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: true
+              }
+            },
+            scales: {
+              MPG:{
+                type: 'linear',
+                position: 'left'
+              },
+              L100km:{
+                type: 'linear',
+                position: 'right',
+                grid:{
+                  display: false
+                }
+              },
+              perlitre:{
+                type: 'linear',
+                position: 'right',
+                grid:{
+                  display: false
+                }
               }
             }
           }
