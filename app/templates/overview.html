@@ -37,7 +37,7 @@
         <div class="row px-3 mt-3">
           <table class="table table-sm table-striped small">
             <thead class="table-dark">
-              <tr><th>{{ lang['card'] }}</th><th>{{ lang['transaction'] }}</th><th>{{ lang['date'] }}</th><th>{{ lang['amount'] }}</th></tr>
+              <tr><th>{{ lang['card'] }}</th><th>{{ lang['transaction'] }}</th><th style="width:100px;">{{ lang['date'] }}</th><th>{{ lang['amount'] }}</th></tr>
             </thead>
             <tbody>
               {% for row in latest %}
@@ -144,7 +144,7 @@
 
 {% endblock %}
 {% block page_script %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js" integrity="sha512-TW5s0IT/IppJtu76UbysrBH9Hy/5X41OTAbQuffZFU6lQ1rdcLHzpU5BzVvr/YFykoiMYZVWlr/PX1mDcfM9Qg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script type="text/javascript">
 
   const months_labels = "{{ lang['month_arr'] }}";
