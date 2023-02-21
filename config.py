@@ -2,7 +2,6 @@ import os
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or "secret_string"
-    #SQLALCHEMY_DATABASE_URI = "postgresql://bm_app_user:bm_app_password@localhost/budgetmonitor"
     SQLALCHEMY_DATABASE_URI = "sqlite:///"+ os.getcwd() +"/budgetmonitor.db"
     DOWNLOADED_STATEMENT = os.path.join('/Users',os.environ['USER'],'Downloads')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -11,6 +10,7 @@ class Config(object):
     CHART_1_MONTH_COUNT = 6
     CHART_2_MONTH_COUNT = 12
     CHART_3_MONTH_COUNT = 12
+    FUEL_TAG_NAME = 'CarFuel'
     CURRENCY_SYMBOL = '£'
     LOCAL_LANG = "en"
     LOCAL_DICT = {
@@ -39,9 +39,13 @@ class Config(object):
             "chrt_lbl_months":"months",
             "chrt_lbl_monthly_trend_in_out":"Monthly Trend (In vs Out)",
             "chrt_lbl_summary_table":"Summary Table",
-            "chrt_lbl_weekdays":"Weekday",
-            "chrt_lbl_detail":"Details",
+            "chrt_lbl_weekdays":"Transactions By Weekday",
+            "chrt_lbl_detail":"Details by Month",
             "chrt_lbl_timeline":"Trend Timeline",
+            "chrt_lbl_fuel":"Fuel Trend",
+            "chrt_lbl_litres":"Litres",
+            "chrt_lbl_miles":"Miles",
+            "chrt_lbl_cost":"Cost",
             "category":"Category",
             "total":"Total",
             "avg":"Avg",
@@ -112,9 +116,6 @@ class Config(object):
             "btn_delete":"Delete",
             "btn_create":"Create",
             "btn_rename_matching":"Rename Matching",
-            "btn_chart_radar":"Chart 1",
-            "btn_chart_line":"Line Chart",
-            "btn_chart_bar":"Bar Chart",
             "btn_tags_select":"Select All Tags",
             "btn_tags_unselect":"Unselect All Tags"
             },
@@ -143,9 +144,13 @@ class Config(object):
             "chrt_lbl_months":"miesięcy",
             "chrt_lbl_monthly_trend_in_out":"Tręd Miesięczny (w kontraście)",
             "chrt_lbl_summary_table":"Podsumowanie",
-            "chrt_lbl_weekdays":"Dni Tygodnia",
-            "chrt_lbl_detail":"Szczegóły",
+            "chrt_lbl_weekdays":"Tranzakcje Tygodniowo",
+            "chrt_lbl_detail":"Wykres Miesięczny",
             "chrt_lbl_timeline":"Trend Na Osi Czasu",
+            "chrt_lbl_fuel":"Wykres Paliwa",
+            "chrt_lbl_litres":"Litrów",
+            "chrt_lbl_miles":"Mil",
+            "chrt_lbl_cost":"Koszt",
             "category":"Kategoria",
             "total":"Całość",
             "avg":"Średnia",
@@ -216,9 +221,6 @@ class Config(object):
             "btn_delete":"Usuń",
             "btn_create":"Utwórz",
             "btn_rename_matching":"Zamień Istniejące Opisy",
-            "btn_chart_radar":"Wykres 1",
-            "btn_chart_line":"Wykres Liniowy",
-            "btn_chart_bar":"Wykres Słupkowy",
             "btn_tags_select":"Zaznacz Wszystkie Kategorie",
             "btn_tags_unselect":"Odznacz Wszytskie Kategorie"
             }
