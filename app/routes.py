@@ -238,16 +238,12 @@ def chart(accountid,chart):
 	f_tag = session['filter_tag'] if session.get('filter_tag') != None else Tag.list_tag_id(accountid)
 	if chart == '1':
 		return {"chart": Transaction.chart_detail(accountid, f_from, f_to, f_tag)}
-
 	elif chart == '2':
 		return {"chart": Transaction.chart_line(accountid, f_from, f_to, f_tag)}
-	
 	elif chart == '3':
 		return {"chart": Transaction.chart_weekday(accountid, f_from, f_to, f_tag)}
-
 	elif chart == '4':
 		return {"chart":Transaction.chart_fuel(accountid, f_from, f_to, app.config['FUEL_TAG_NAME'])}
-	
 	else:
 		return jsonify('Hello, World!')
 
