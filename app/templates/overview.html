@@ -60,7 +60,7 @@
   <div class="col-sm p-2 bg-white">
     <label class="badge bg-secondary">
     {% for c in chart1 %}
-      {{ c.gName }}
+      {{ c.gName }}{{ ", " if not loop.last else "" }}
     {% endfor %}
     ({{chart_months[0]}} {{ lang['chrt_lbl_months'] }})
     </label>
@@ -72,7 +72,7 @@
   <div class="col-sm p-2 bg-white">
     <label class="badge bg-secondary">
     {% for c in chart2 %}
-      {{ c.gName }}
+      {{ c.gName }}{{ ", " if not loop.last else "" }}
     {% endfor %}
     ({{chart_months[1]}} {{ lang['chrt_lbl_months'] }})
     </label>
@@ -84,7 +84,7 @@
   <div class="col-sm p-2 bg-white">
     <label class="badge bg-secondary">
     {% for c in chart3 %}
-      {{ c.gName }}
+      {{ c.gName }}{{ ", " if not loop.last else "" }}
     {% endfor %}
     ({{chart_months[2]}} {{ lang['chrt_lbl_months'] }})
     </label>
