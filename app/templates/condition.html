@@ -43,7 +43,7 @@
 		<div class="col-sm-7 p-0"><input type="text" class="form-control form-control-sm" name="cond_desc" value="{{ cond.cName }}" id="desc{{ loop.index }}" autocomplete="off" required></div>
 		<div class="col-sm-3 p-0"><select name="cond_tag" id="tag_list_{{ loop.index }}" class="form-select form-select-sm tag_list" data-idx="{{ loop.index }}" data-selitem="{{ cond.tag_id }}" required></select></div>
 		<div class="col-sm-2 pr-0 btn-group">
-			<button type="submit" class="btn btn-outline-success btn-sm float-right" name="btnSubmit" value="updateCond" data-container="body" data-toggle="tooltip" title="{{ lang['btn_save'] }}"><i class="bi-save"></i></button>
+			<button type="submit" class="btn btn-outline-success btn-sm float-right" name="btnSubmit" value="updateCond" data-container="body" data-toggle="tooltip" title="{{ lang['btn_save'] }}"><i class="bi-check-lg"></i></button>
 			<button type="submit" class="btn btn-outline-danger btn-sm float-right" name="btnSubmit" value="deleteCond" data-container="body" data-toggle="tooltip" title="{{ lang['btn_delete'] }}"><i class="bi-trash"></i></button>
 		</div>
 	  </div>
