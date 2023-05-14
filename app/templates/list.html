@@ -32,7 +32,7 @@
               <input type="hidden" name="trans_ID" id="splitID" required>
               <div class="col-sm-2 p-0">                
                 <div class="input-group date" data-idx="100" id="datetimepicker100" data-td-target-input="nearest" data-td-target-toggle="nearest">
-                <input type="text" name="trans_date" id="date100" class="form-control form-control-sm" data-td-target="#datetimepicker100" required/>
+                <input type="text" name="trans_date" id="date100" class="form-control form-control-sm" data-td-target="#datetimepicker100" data-td-toggle="datetimepicker" required/>
                 <span class="input-group-text" data-td-target="#datetimepicker100" data-td-toggle="datetimepicker"><i class="bi-calendar"></i></span></div>
               </div>
               <div class="col-sm-5 p-0"><input type="text" class="form-control" name="trans_desc" id="splitDesc" autocomplete="off" required></div>
@@ -93,13 +93,13 @@
           <span class="input-group-text">{{ lang['from'] }}</span>
           <div class="c0l-sm p-0" style="max-width:130px;">
             <div class="input-group input-group-sm date" data-idx="101" id="datetimepicker101" data-td-target-input="nearest" data-td-target-toggle="nearest">
-            <input type="text" name="filter_from" value="{{ filter_from }}" id="date101" class="form-control form-control-sm" data-td-target="#datetimepicker101" required/>
+            <input type="text" name="filter_from" value="{{ filter_from }}" id="date101" class="form-control form-control-sm" data-td-target="#datetimepicker101" data-td-toggle="datetimepicker" required/>
             <span class="input-group-text" data-td-target="#datetimepicker101" data-td-toggle="datetimepicker"><i class="bi-calendar"></i></span></div>
           </div>
           <span class="input-group-text">{{ lang['to'] }}</span>
           <div class="col-sm p-0" style="max-width:130px;">
             <div class="input-group input-group-sm date" data-idx="102" id="datetimepicker102" data-td-target-input="nearest" data-td-target-toggle="nearest">
-            <input type="text" name="filter_to" value="{{ filter_to }}" id="date102" class="form-control form-control-sm" data-td-target="#datetimepicker102" required/>
+            <input type="text" name="filter_to" value="{{ filter_to }}" id="date102" class="form-control form-control-sm" data-td-target="#datetimepicker102" data-td-toggle="datetimepicker" required/>
             <span class="input-group-text" data-td-target="#datetimepicker102" data-td-toggle="datetimepicker"><i class="bi-calendar"></i></span></div>
           </div>
           <span class="input-group-text">{{ lang['total'] }} # {{ cnt_avg_sum.a_cnt }}</span>
@@ -131,16 +131,16 @@
       <input type="hidden" name="trans_ID" value="{{ tran.id }}" id="id{{ loop.index }}" required>
       <div class="col-sm-2 p-0">
         <div class="input-group input-group-sm date" data-idx="{{ loop.index }}" id="datetimepicker{{ loop.index }}" data-td-target-input="nearest" data-td-target-toggle="nearest">
-          <input type="text" name="trans_date" value="{{ tran.traDate }}" id="date{{ loop.index }}" class="form-control form-control-sm" data-td-target="#datetimepicker{{ loop.index }}" required/>
+          <input type="text" name="trans_date" value="{{ tran.traDate }}" id="date{{ loop.index }}" class="form-control form-control-sm" data-td-target="#datetimepicker{{ loop.index }}" data-td-toggle="datetimepicker" required/>
           <span class="input-group-text" data-td-target="#datetimepicker{{ loop.index }}" data-td-toggle="datetimepicker"><i class="bi-calendar"></i></span></div>
       </div>
       <div class="col-sm-5 p-0"><input type="text" class="form-control form-control-sm" name="trans_desc" value="{{ tran.desc }}" id="desc{{ loop.index }}" autocomplete="off" required></div>
       <div class="col-sm-1 p-0"><input type="text" class="form-control form-control-sm" name="trans_amnt" value="{{ tran.amount }}" id="amnt{{ loop.index }}" autocomplete="off" required></div>
       <div class="col-sm-2 p-0"><select name="trans_tag" id="tag_list_{{ loop.index }}" class="form-select form-select-sm tag_list" data-idx="{{ loop.index }}" data-selitem="{{ tran.tag_id }}" required></select></div>
       <div class="col-sm-2 p-0 btn-group">
-  			<button type="submit" class="btn btn-outline-success btn-sm ml-1" name="btnSubmit" value="updateTrans" data-container="body" data-toggle="tooltip" title="{{ lang['btn_save'] }}"><i class="bi-save"></i></button>
-        <button type="submit" class="btn btn-outline-primary btn-sm" name="btnSubmit" value="createCondition" data-container="body" data-toggle="tooltip" title="{{ lang['btn_create_match_string'] }}"><i class="bi-plus-lg"></i></button>
-        <button type="button" class="btn btn-outline-info btn-sm" data-bs-idx="{{ loop.index }}" data-bs-toggle="modal" data-bs-target="#Modal_split" data-container="body" data-toggle="tooltip" title="{{ lang['btn_split_transaction'] }}"><i class="bi-file-earmark-plus"></i></button>
+  			<button type="submit" class="btn btn-outline-success btn-sm ml-1" name="btnSubmit" value="updateTrans" data-container="body" data-toggle="tooltip" title="{{ lang['btn_save'] }}"><i class="bi-check-lg"></i></button>
+        <button type="submit" class="btn btn-outline-primary btn-sm" name="btnSubmit" value="createCondition" data-container="body" data-toggle="tooltip" title="{{ lang['btn_create_match_string'] }}"><i class="bi-bookmark-plus"></i></button>
+        <button type="button" class="btn btn-outline-info btn-sm" data-bs-idx="{{ loop.index }}" data-bs-toggle="modal" data-bs-target="#Modal_split" data-container="body" data-toggle="tooltip" title="{{ lang['btn_split_transaction'] }}"><i class="bi-hr"></i></button>
 			  <button type="submit" class="btn btn-outline-danger btn-sm" name="btnSubmit" value="deleteTrans" data-container="body" data-toggle="tooltip" title="{{ lang['btn_delete'] }}"><i class="bi-trash"></i></button>
       </div>
 	  </div>
@@ -157,28 +157,44 @@
 {% endblock %}
 {% block page_script %}
 <!-- Tempus Dominus JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/@eonasdan/tempus-dominus@6.2.10/dist/js/tempus-dominus.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@eonasdan/tempus-dominus@6.7.7/dist/js/tempus-dominus.min.js" crossorigin="anonymous"></script>
 <!-- Tempus Dominus Styles -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@eonasdan/tempus-dominus@6.2.10/dist/css/tempus-dominus.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@eonasdan/tempus-dominus@6.7.7/dist/css/tempus-dominus.min.css" crossorigin="anonymous">
 <!-- Chart.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script type="text/javascript">
-//hooks: {inputFormat:(context, date) => {   return date.toISOString().substr(0,10)      }},
+
 //populate .date field => date picker
-/*
   const dateFields = document.querySelectorAll(".date");
   dateFields.forEach(function(item){
     var idx = item.getAttribute("data-idx");
-    new tempusDominus.TempusDominus(document.getElementById("datetimepicker"+idx),{
-      localization:{
-        format: 'yyyy-MM-dd'
-      },
+    new tempusDominus.TempusDominus(document.getElementById('datetimepicker'+idx),{
       display: {
-        viewMode: 'calendar'
-      }      
-    });
+        viewMode: 'calendar',
+        icons: {
+          type: 'icons',
+          previous: 'bi-chevron-double-left',
+          next: 'bi-chevron-double-right',
+        },
+        components: {
+          calendar: true,
+          date: true,
+          month: true,
+          year: true,
+          decades: true,
+          clock: false,
+          hours: false,
+          minutes: false,
+          seconds: false
+        }
+      },
+      localization: {
+        locale: 'en-GB',
+        format: 'yyyy-MM-dd',
+        dayViewHeaderFormat: 'MMMM yyyy'
+      }
+    })    
   });
-  */
 
 
 //create a map of all tags
