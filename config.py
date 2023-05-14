@@ -97,7 +97,7 @@ class Config(object):
             "from":"From",
             "to":"To",
             "transaction_text_to_match":"Transaction Text To Match",
-            "replace_from":"replace From",
+            "replace_from":"Replace From",
             "replace_to":"Replace To",
             "original_text":"Original Transaction Text",
             "new_text":"New Text",
