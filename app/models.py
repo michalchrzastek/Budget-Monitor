@@ -282,14 +282,11 @@ class Transaction(db.Model):
 	def get_stat_year_df(account_id, what_year):
 		tg = Taggroup.list_tgroup_id_inSum(account_id)
 		q = Transaction.get_stat_year(account_id, what_year)
-		#df = pd.read_sql_query(q.statement, db.session.bind)
-		df = pd.read_sql_query(q.statement, db.get_engine())#pandas 1.4.46
+		df = pd.read_sql_query(q.statement, db.get_engine())
 		#transform valies from object to float
-		pd.options.display.float_format = '{:.2f}'.format
+		pd.options.display.float_format = '{:.2f}'.format		
 		#exclude BILLS from summary
-		#s = df.mask(~df['tag1'].isin(tg)).drop('tag1',1).sum()#depreciated
-		#s = df.mask(~df['tag1'].isin(tg)).drop(columns='tag1').sum()
-		s = df.mask(~df['tag1'].isin(tg)).drop('tag1',axis=1).sum()
+		s = df.mask(~df['tag1'].isin(tg)).drop('tag1',axis=1).sum(axis=0,numeric_only=True)
 		#calculate '% YTD'
 		s.loc['%_YTD'] = 100*(s['This_Year'] / s['Prev_Year']) if s['Prev_Year']!=0 else 0
 		#replace calculated value in specific position
@@ -309,12 +306,11 @@ class Transaction(db.Model):
 			.outerjoin(Taggroup, Taggroup.id == Tag.tgr_id)\
     		.filter(Transaction.acc_id == account_id, Transaction.confirmed == 1, Tag.isBlnc == 0)\
 			.order_by(Tag.tgr_id)
-		#df = pd.read_sql_query(q.statement, db.session.bind)#pandas 1.2.3
-		df = pd.read_sql_query(q.statement, db.get_engine())#pandas 1.4.46
+		df = pd.read_sql_query(q.statement, db.get_engine())
 		#add column 'year' based on 'date'
 		df['Year'] = pd.DatetimeIndex(df['date']).year
 		#groupby
-		df = df.groupby(['tag','Category','Year']).sum()
+		df = df.groupby(['tag','Category','Year']).sum(numeric_only=True)
 		#pivot
 		df = pd.pivot_table(df, values = 'amount', index=['Category','tag'], columns = 'Year')\
 			.sort_values(by=['tag'], ascending=True)
@@ -342,12 +338,11 @@ class Transaction(db.Model):
 					  ,Taggroup.gName\
 					  ,Transaction.traDate)\
 			.order_by(Tag.tgr_id)
-		#df = pd.read_sql_query(q.statement, db.session.bind)
-		df = pd.read_sql_query(q.statement, db.get_engine())#pandas 1.4.46
+		df = pd.read_sql_query(q.statement, db.get_engine())
 		#add column 'month' based on 'date'
 		df['Month'] = pd.DatetimeIndex(df['traDate']).month
 		#groupby
-		df = df.groupby(['tag','Category','Month']).sum()
+		df = df.groupby(['tag','Category','Month']).sum(numeric_only=True)
 		#pivot
 		df = pd.pivot_table(df, values = 'amount', index=['Category','tag'], columns = 'Month')\
 			.sort_values(by=['tag'], ascending=True)
@@ -368,12 +363,9 @@ class Transaction(db.Model):
 		month_by_month = db.session.query(\
 							func.strftime('%Y%m',Transaction.traDate).label('orderByCol')\
 							,func.strftime('%m',Transaction.traDate).label('mnth')\
-							#,func.SUM(case([(Transaction.amount > 0,Transaction.amount)], else_ = 0)).label('sum_in')\
 							,func.SUM(case((Transaction.amount > 0,Transaction.amount), else_ = 0)).label('sum_in')\
-							#,func.ABS(func.SUM(case([(Transaction.amount < 0,Transaction.amount)], else_ = 0))).label('sum_out')\
 							,func.ABS(func.SUM(case((Transaction.amount < 0,Transaction.amount), else_ = 0))).label('sum_out')\
 							,column('Dummy')\
-							#,case([
 							,case(
 								(func.strftime('%m',Transaction.traDate) == '01', 'Jan'),
 								(func.strftime('%m',Transaction.traDate) == '02', 'Feb'),
@@ -387,7 +379,6 @@ class Transaction(db.Model):
 								(func.strftime('%m',Transaction.traDate) == '10', 'Oct'),
 								(func.strftime('%m',Transaction.traDate) == '11', 'Nov'),
 								(func.strftime('%m',Transaction.traDate) == '12', 'Dec'),
-							#	],
         						else_ = func.strftime('%m',Transaction.traDate)).label("mmm")
 							)\
 							.filter(Transaction.tag_id.in_(tags_id), Transaction.traDate>=minus_13_months, Transaction.traDate<first_of_this_month)\
@@ -397,9 +388,7 @@ class Transaction(db.Model):
 		month_avg = db.session.query(\
 							column('orderByCol')\
 							,column('MON')\
-							#,func.SUM(case([(Transaction.amount > 0,Transaction.amount/month_count)], else_ = 0)).label('avg_sum_in')\
 							,func.SUM(case((Transaction.amount > 0,Transaction.amount/month_count), else_ = 0)).label('avg_sum_in')\
-							#,func.ABS(func.SUM(case([(Transaction.amount < 0,Transaction.amount/month_count)], else_ = 0))).label('avg_sum_out')\
 							,func.ABS(func.SUM(case((Transaction.amount < 0,Transaction.amount/month_count), else_ = 0))).label('avg_sum_out')\
 							,column('Dummy')\
 							,column('Dummy2'))\
@@ -431,8 +420,8 @@ class Transaction(db.Model):
 					,Transaction.traDate <= date_to\
 					)\
 			.group_by(Taggroup.gName,func.strftime('%Y-%m',Transaction.traDate),Taggroup.gColor)\
-			.order_by(func.strftime('%Y-%m',Transaction.traDate))		
-		#return [dict(r) for r in res]
+			.order_by(func.strftime('%Y-%m',Transaction.traDate))
+		
 		out_dict = []
 		for r in res:
 			out_dict.append({'Category':r[0],'amount':r[1],'yyyymm':r[2],'color':r[3]})
@@ -451,8 +440,8 @@ class Transaction(db.Model):
 					,Transaction.traDate <= date_to\
 					)\
 			.group_by(Transaction.traDate)\
-			.order_by(Transaction.traDate)		
-		#return [dict(r) for r in res]
+			.order_by(Transaction.traDate)
+		
 		out_dict = []
 		for r in res:
 			out_dict.append({'traDate':r[0],'amount':r[1]})
@@ -488,7 +477,6 @@ class Transaction(db.Model):
 								,Transaction.traDate < to_date\
 								,Tag.tName == fuel_tag_name)\
 						.order_by(Transaction.traDate)
-		#df = pd.read_sql_query(q.statement, db.session.bind)#sqlalchemy 1.4.46
 		df = pd.read_sql_query(q.statement, db.get_engine())
 		df['traDate'] = df['traDate'].astype(str)
 		df['desc'] = df['desc'].replace({'||':'|'})
