@@ -19,7 +19,15 @@ QIF format/layout is the same from bank to bank, CVS varies.
 There is a number of budget monitor like apps, but appart of some requiring to register or to share personal and bank details, I just wanted to build my own :)
 
 ## Plans for the future:
-Dependency on Bootstrap 4.5. Once version 5 is released, will update this app. This also links with removal of jQuery and elimination of FontAwesome in favour of default Bootstrap icons. Also dependency on Tempus-Dominus, (date picker) and BSMultiSelect (tag filter). All mentioned are used in the app via cdn.
+- Upversion charts to Chart.js v4
+
+May 2023 update:
+- Upgraded to Bootstrap 5.2.3
+- Upgraded ChartsJS from to 3.9.1
+- Upgraded to pandas 2.0.1
+- Date Picker works again with TempusDominus 6.7.7
+- Redesigned how the overview page works/looks
+- Added new fuel trend 
 
 January 2022 update:
 - Upgraded Bootstrap from 4.5 to 5.1
@@ -31,9 +39,9 @@ January 2022 update:
 - Date picker (TempusDominus) temporary disabled, until v6 is completed
 
 ## Installation instructions (for Mac):
-Prerequisite: Python3.6 (minimum), check your version: python3 --version
+Prerequisite: Python3.8 (minimum), check your version: python3 --version
 
-1. Open Terminal, navigate to desired location, ie [Dowlnoads] or [Documents]
+1. Open Terminal, navigate to desired location, ie [Downloads] or [Documents]
 
 2. Download this repo
 ```
@@ -60,3 +68,11 @@ Then open a web browser
 ```
 localhost:5000
 ```
+
+## Upgrade instructions (for Mac):
+1. Go to the folder where you installed the repo
+2. Copy the budgetmonitor.db file to a safe place.
+3. Delete the Budget-Monitor folder
+4. Follow the installation instructions
+5. After initial launch, close the app/terminal and replace the new budgetmonitor.db file with your backup copy fom step 2.
+6. Start the app same way as usual.
