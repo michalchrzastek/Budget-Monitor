@@ -3,7 +3,7 @@ from xxlimited import Str
 from numpy import average
 import pandas as pd
 import flask
-from sqlalchemy import extract, asc, desc, func, column, case, text
+from sqlalchemy import extract, asc, desc, func, column, case, text, or_
 from app import db, app
 
 today = date.today()
@@ -118,25 +118,47 @@ class Transaction(db.Model):
 		return Transaction.query.with_entities(func.count(Transaction.id).label('cnt'))\
 				.filter(Transaction.acc_id == account_id, Transaction.confirmed == 0).one_or_none()
 
-	def cnt_avg_sum_filtered(account_id, date_from, date_to, sel_tags):
+	def cnt_avg_sum_filtered(account_id, date_from, date_to, sel_tags, f_desc, f_card):
 		return Transaction.query\
 				.with_entities(func.count(Transaction.amount).label('a_cnt'), func.avg(Transaction.amount).label('a_avg'), func.sum(Transaction.amount).label('a_sum'))\
-				.filter(Transaction.acc_id == account_id, Transaction.traDate >= date_from, Transaction.traDate <= date_to, Transaction.tag_id.in_(sel_tags)).one_or_none()
-
-	def list_filtered(account_id, date_from, date_to, sel_tags):
-		return Transaction.query.filter(Transaction.acc_id == account_id\
+				.filter(Transaction.acc_id == account_id\
 								,Transaction.traDate >= date_from\
 								,Transaction.traDate <= date_to\
-								,Transaction.tag_id.in_(sel_tags))\
-							.order_by(Transaction.traDate.desc(), Transaction.amount)
+								,Transaction.tag_id.in_(sel_tags)\
+								,Transaction.desc.like('%'+ f_desc +'%')\
+								,or_(f_card == None, Transaction.card == f_card))\
+							.one_or_none()
 
-	def cnt_avg_sum_filtered_new(account_id, date_from, date_to):
+	def list_filtered(account_id, date_from, date_to, sel_tags, f_desc, f_card):
+		print(f_card)
+		q= Transaction.query.filter(Transaction.acc_id == account_id\
+								,Transaction.traDate >= date_from\
+								,Transaction.traDate <= date_to\
+								,Transaction.tag_id.in_(sel_tags)\
+								,Transaction.desc.like('%'+ f_desc +'%')\
+								,or_(f_card == None, Transaction.card == f_card))\
+							.order_by(Transaction.traDate.desc(), Transaction.amount)
+		print(q)
+		return q
+
+	def cnt_avg_sum_filtered_new(account_id, date_from, date_to, f_desc, f_card):
 		return Transaction.query\
 				.with_entities(func.count(Transaction.amount).label('a_cnt'), func.avg(Transaction.amount).label('a_avg'), func.sum(Transaction.amount).label('a_sum'))\
-				.filter(Transaction.acc_id == account_id, Transaction.traDate >= date_from, Transaction.traDate <= date_to, Transaction.confirmed == 0).one_or_none()
+				.filter(Transaction.acc_id == account_id\
+						,Transaction.traDate >= date_from\
+						,Transaction.traDate <= date_to\
+						,Transaction.confirmed == 0\
+						,Transaction.desc.like('%'+ f_desc +'%')\
+						,or_(f_card == None, Transaction.card == f_card))\
+					.one_or_none()
 
-	def list_filtered_new(account_id, date_from, date_to):
-		return Transaction.query.filter(Transaction.acc_id == account_id, Transaction.traDate >= date_from, Transaction.traDate <= date_to, Transaction.confirmed == 0)\
+	def list_filtered_new(account_id, date_from, date_to, f_desc, f_card):
+		return Transaction.query.filter(Transaction.acc_id == account_id\
+								  ,Transaction.traDate >= date_from\
+								  ,Transaction.traDate <= date_to\
+								  ,Transaction.confirmed == 0\
+								  ,Transaction.desc.like('%'+ f_desc +'%')\
+								  ,or_(f_card == None, Transaction.card == f_card))\
 				.order_by(Transaction.traDate.desc(), Transaction.amount)
 
 	def list_duplicated(account_id):
@@ -148,7 +170,7 @@ class Transaction(db.Model):
 
 	def list_latest_uploads_by_card(account_id, card):
 		return db.session.query(Transaction.card, Transaction.desc, Transaction.traDate, Transaction.amount)\
-				.filter(Transaction.acc_id == account_id, Transaction.card == card)\
+				.filter(Transaction.acc_id == account_id, Transaction.card == card, Transaction.traDate <= today)\
 				.order_by(Transaction.traDate.desc()).limit(3).all()
 
 	def first_date(account_id):
@@ -405,7 +427,7 @@ class Transaction(db.Model):
 				.outerjoin(month_by_month, month_by_month.c.Dummy == month_avg.c.Dummy)\
 				.order_by(month_by_month.c.orderByCol)
 
-	def chart_detail(account_id,date_from,date_to,sel_tags):
+	def chart_detail(account_id,date_from,date_to,sel_tags,f_desc,f_card):
 		res = db.session.query(Taggroup.gName.label('Category')\
 							,func.ABS(func.SUM(Transaction.amount)).label('amount')\
 							,func.strftime('%Y-%m',Transaction.traDate).label('yyyymm')
@@ -418,7 +440,8 @@ class Transaction(db.Model):
 					,Transaction.tag_id.in_(sel_tags)\
 					,Transaction.traDate >= date_from\
 					,Transaction.traDate <= date_to\
-					)\
+					,Transaction.desc.like('%'+ f_desc +'%')\
+					,or_(f_card == None, Transaction.card == f_card))\
 			.group_by(Taggroup.gName,func.strftime('%Y-%m',Transaction.traDate),Taggroup.gColor)\
 			.order_by(func.strftime('%Y-%m',Transaction.traDate))
 		
@@ -427,7 +450,7 @@ class Transaction(db.Model):
 			out_dict.append({'Category':r[0],'amount':r[1],'yyyymm':r[2],'color':r[3]})
 		return out_dict
 
-	def chart_line(account_id,date_from,date_to,sel_tags):
+	def chart_line(account_id,date_from,date_to,sel_tags,f_desc,f_card):
 		res = db.session.query(Transaction.traDate\
 							,func.ABS(func.SUM(Transaction.amount)).label('amount'))\
     		.outerjoin(Tag, Transaction.tag_id == Tag.id)\
@@ -438,7 +461,8 @@ class Transaction(db.Model):
 					,Transaction.tag_id.in_(sel_tags)\
 					,Transaction.traDate >= date_from\
 					,Transaction.traDate <= date_to\
-					)\
+					,Transaction.desc.like('%'+ f_desc +'%')\
+					,or_(f_card == None, Transaction.card == f_card))\
 			.group_by(Transaction.traDate)\
 			.order_by(Transaction.traDate)
 		
@@ -447,7 +471,7 @@ class Transaction(db.Model):
 			out_dict.append({'traDate':r[0],'amount':r[1]})
 		return out_dict
 
-	def chart_weekday(account_id,date_from,date_to,sel_tags):
+	def chart_weekday(account_id,date_from,date_to,sel_tags,f_desc,f_card):
 		res = db.session.query(func.strftime('%w',Transaction.traDate).label('wkDay')\
 							,func.ABS(func.SUM(Transaction.amount)).label('amount'))\
     		.outerjoin(Tag, Transaction.tag_id == Tag.id)\
@@ -458,7 +482,8 @@ class Transaction(db.Model):
 					,Transaction.tag_id.in_(sel_tags)\
 					,Transaction.traDate >= date_from\
 					,Transaction.traDate <= date_to\
-					)\
+					,Transaction.desc.like('%'+ f_desc +'%')\
+					,or_(f_card == None, Transaction.card == f_card))\
 			.group_by(func.strftime('%w',Transaction.traDate))\
 			.order_by(func.strftime('%w',Transaction.traDate))
 		out_dict = []

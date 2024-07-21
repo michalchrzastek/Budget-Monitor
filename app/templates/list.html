@@ -102,9 +102,12 @@
             <input type="text" name="filter_to" value="{{ filter_to }}" id="date102" class="form-control form-control-sm" data-td-target="#datetimepicker102" data-td-toggle="datetimepicker" required/>
             <span class="input-group-text" data-td-target="#datetimepicker102" data-td-toggle="datetimepicker"><i class="bi-calendar"></i></span></div>
           </div>
+          <input type="text" name="filter_desc" value="{{ filter_desc }}" class="filter_additional_fields d-none form-control form-control-sm" placeholder="{{ lang['transaction'] }}">
+          <select id="filter_card" name="filter_card" data-cardselected="{{ filter_card }}" class="filter_additional_fields d-none form-control form-control-sm"><option value=""></option></select>
           <span class="input-group-text">{{ lang['total'] }} # {{ cnt_avg_sum.a_cnt }}</span>
           <span class="input-group-text">{{ lang['avg'] }} {{ currency_symbol }}{{'%0.2f'| format(cnt_avg_sum.a_avg|float)}}</span>
           <span class="input-group-text">{{ lang['total'] }} {{ currency_symbol }}{{ cnt_avg_sum.a_sum|int }}</span>
+          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="filter_show_more()" data-container="body" data-toggle="tooltip" title="{{ lang['btn_show_more'] }}"><i class="bi-three-dots"></i></button>
           <button type="submit" class="btn btn-outline-success btn-sm" name="btnSubmit" data-container="body" data-toggle="tooltip" title="{{ lang['btn_apply_filter'] }}"><i class="bi-funnel"></i></button>
           <a href="{{ url_for('filter', accountid=accountid, page_name=page_name) }}" class="btn btn-outline-danger btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['btn_reset_filter'] }}"><i class="bi-eraser"></i></a>
           <button type="button" class="btn btn-outline-secondary btn-sm" data-container="body" data-toggle="tooltip" title="{{ lang['chrt_lbl_fuel'] }}" data-bs-chart="4" data-bs-toggle="modal" data-bs-target="#Modal_chart"><i class="bi-fuel-pump-fill"></i></button>
@@ -119,7 +122,7 @@
 
 
 <div class="row my-1">
-	<label class="col-sm-2 badge bg-dark py-2">{{ lang['date'] }}</label>
+  <label class="col-sm-2 badge bg-dark py-2"><span class="float-start">{{ lang['card'] }}</span><span class="float-end">{{ lang['date'] }}</span></label>
 	<label class="col-sm-5 badge bg-dark py-2">{{ lang['transaction'] }}</label>
 	<label class="col-sm-1 badge bg-dark py-2">{{ lang['amount'] }}</label>
 	<label class="col-sm-2 badge bg-dark py-2">{{ lang['tag_name'] }}</label>
@@ -131,16 +134,18 @@
       <input type="hidden" name="trans_ID" value="{{ tran.id }}" id="id{{ loop.index }}" required>
       <div class="col-sm-2 p-0">
         <div class="input-group input-group-sm date" data-idx="{{ loop.index }}" id="datetimepicker{{ loop.index }}" data-td-target-input="nearest" data-td-target-toggle="nearest">
-          <input type="text" name="trans_date" value="{{ tran.traDate }}" id="date{{ loop.index }}" class="form-control form-control-sm" data-td-target="#datetimepicker{{ loop.index }}" data-td-toggle="datetimepicker" required/>
-          <span class="input-group-text" data-td-target="#datetimepicker{{ loop.index }}" data-td-toggle="datetimepicker"><i class="bi-calendar"></i></span></div>
+          <span class="input-group-text" style="font-family:'Courier New', Courier, monospace;">{{ tran.card }}</span>
+          <input type="text" name="trans_date" value="{{ tran.traDate }}" id="date{{ loop.index }}" class="form-control form-control-sm text-end" data-td-target="#datetimepicker{{ loop.index }}" data-td-toggle="datetimepicker" required/>
+          <span class="input-group-text" data-td-target="#datetimepicker{{ loop.index }}" data-td-toggle="datetimepicker"><i class="bi-calendar"></i></span>
+        </div>
       </div>
       <div class="col-sm-5 p-0"><input type="text" class="form-control form-control-sm" name="trans_desc" value="{{ tran.desc }}" id="desc{{ loop.index }}" autocomplete="off" required></div>
       <div class="col-sm-1 p-0"><input type="text" class="form-control form-control-sm" name="trans_amnt" value="{{ tran.amount }}" id="amnt{{ loop.index }}" autocomplete="off" required></div>
       <div class="col-sm-2 p-0"><select name="trans_tag" id="tag_list_{{ loop.index }}" class="form-select form-select-sm tag_list" data-idx="{{ loop.index }}" data-selitem="{{ tran.tag_id }}" required></select></div>
       <div class="col-sm-2 p-0 btn-group">
   			<button type="submit" class="btn btn-outline-success btn-sm ml-1" name="btnSubmit" value="updateTrans" data-container="body" data-toggle="tooltip" title="{{ lang['btn_save'] }}"><i class="bi-check-lg"></i></button>
-        <button type="submit" class="btn btn-outline-primary btn-sm" name="btnSubmit" value="createCondition" data-container="body" data-toggle="tooltip" title="{{ lang['btn_create_match_string'] }}"><i class="bi-bookmark-plus"></i></button>
-        <button type="button" class="btn btn-outline-info btn-sm" data-bs-idx="{{ loop.index }}" data-bs-toggle="modal" data-bs-target="#Modal_split" data-container="body" data-toggle="tooltip" title="{{ lang['btn_split_transaction'] }}"><i class="bi-hr"></i></button>
+        <button type="submit" class="btn btn-outline-primary btn-sm" name="btnSubmit" value="createCondition" data-container="body" data-toggle="tooltip" title="{{ lang['btn_create_match_string'] }}"><i class="bi-star"></i></button>
+        <button type="button" class="btn btn-outline-info btn-sm" data-bs-idx="{{ loop.index }}" data-bs-toggle="modal" data-bs-target="#Modal_split" data-container="body" data-toggle="tooltip" title="{{ lang['btn_split_transaction'] }}"><i class="bi-scissors"></i></button>
 			  <button type="submit" class="btn btn-outline-danger btn-sm" name="btnSubmit" value="deleteTrans" data-container="body" data-toggle="tooltip" title="{{ lang['btn_delete'] }}"><i class="bi-trash"></i></button>
       </div>
 	  </div>
@@ -150,7 +155,7 @@
 
 <table>
     {% for t in duplicated %}
-    <tr><td>{{ t.traDate }}</td><td>{{ t.desc }}</td><td>{{ t.amount }}</td></tr>
+    <tr class="text-danger"><td>{{ t.traDate }}</td><td>{{ t.desc }}</td><td>{{ t.amount }}</td></tr>
     {% endfor %}
 </table>
 
@@ -271,6 +276,25 @@
     document.getElementById('splitAmnt').value = res;
   }
 
+  //show more FILTER inputs
+  function filter_show_more(){
+    document.querySelectorAll('.filter_additional_fields').forEach(item => {
+		  item.classList.toggle('d-none');
+    });
+  }
+
+  //populate CARD FILTER with options
+  var filter_card = document.getElementById("filter_card");
+  var filter_card_sel = filter_card.getAttribute('data-cardselected');
+  var filter_card_options = ['D','C','M'];
+  filter_card_options.forEach(function(e){
+    var option = document.createElement("option");
+    var isSelected = e==filter_card_sel ? true : false;
+    option.text = e;
+    option.value = e;
+    option.selected = isSelected;
+    filter_card.appendChild(option);
+  });
 
 //Modal Chart
   var chartModal = document.getElementById('Modal_chart');

@@ -16,6 +16,8 @@ def index():
 	session['filter_from'] = None
 	session['filter_to'] = None
 	session['filter_tag'] = None
+	session['filter_desc'] = None
+	session['filter_card'] = None
 	session['selected_year'] = None
 	if request.method=='POST' and request.form['action']=='addAccount':
 		newAccName = request.form['accName']
@@ -236,12 +238,14 @@ def chart(accountid,chart):
 	f_from = session['filter_from'] if session.get('filter_from') != None else Transaction.first_date(accountid)
 	f_to = session['filter_to'] if session.get('filter_to') != None else Transaction.last_date(accountid)
 	f_tag = session['filter_tag'] if session.get('filter_tag') != None else Tag.list_tag_id(accountid)
+	f_desc = session['filter_desc'] if session.get('filter_desc') != None else ''
+	f_card = session['filter_card'] if session.get('filter_card') != None else None
 	if chart == '1':
-		return {"chart": Transaction.chart_detail(accountid, f_from, f_to, f_tag)}
+		return {"chart": Transaction.chart_detail(accountid, f_from, f_to, f_tag, f_desc, f_card)}
 	elif chart == '2':
-		return {"chart": Transaction.chart_line(accountid, f_from, f_to, f_tag)}
+		return {"chart": Transaction.chart_line(accountid, f_from, f_to, f_tag, f_desc, f_card)}
 	elif chart == '3':
-		return {"chart": Transaction.chart_weekday(accountid, f_from, f_to, f_tag)}
+		return {"chart": Transaction.chart_weekday(accountid, f_from, f_to, f_tag, f_desc, f_card)}
 	elif chart == '4':
 		return {"chart":Transaction.chart_fuel(accountid, f_from, f_to, app.config['FUEL_TAG_NAME'])}
 	else:
@@ -283,8 +287,10 @@ def listAll(accountid):
 	page = request.args.get('page', 1, type=int)
 	f_from = session['filter_from'] if session.get('filter_from') != None else Transaction.first_date(accountid)
 	f_to = session['filter_to'] if session.get('filter_to') != None else Transaction.last_date(accountid)
+	f_desc = session['filter_desc'] if session.get('filter_desc') != None else ''
+	f_card = session['filter_card'] if session.get('filter_card') != None else None
 	f_tag = session['filter_tag'] if session.get('filter_tag') != None else Tag.list_tag_id(accountid)
-	trns = Transaction.list_filtered(accountid, f_from, f_to, f_tag).paginate(page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
+	trns = Transaction.list_filtered(accountid, f_from, f_to, f_tag, f_desc, f_card).paginate(page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
 	has_prev = url_for('listAll', accountid=accountid, page=trns.prev_num) if trns.has_prev else None
 	has_next = url_for('listAll', accountid=accountid, page=trns.next_num) if trns.has_next else None
 	templateData = {
@@ -295,9 +301,11 @@ def listAll(accountid):
 		'url_for_name' : 'listAll',
 		'acc_name' : Account.one_acc(accountid),
 		'tags' : Tag.list_tag(accountid),
-		'cnt_avg_sum' : Transaction.cnt_avg_sum_filtered(accountid, f_from, f_to, f_tag),
+		'cnt_avg_sum' : Transaction.cnt_avg_sum_filtered(accountid, f_from, f_to, f_tag, f_desc, f_card),
 		'filter_from' : f_from,
 		'filter_to' : f_to,
+		'filter_desc' : f_desc,
+		'filter_card' : f_card,
 		'filter_tag' : [f_tag],
 		'cnt_new' : Transaction.cnt_new(accountid),
 		'page_name' : 'listAll',
@@ -341,8 +349,10 @@ def listNew(accountid):
 	page = request.args.get('page', 1, type=int)
 	f_from = session['filter_from'] if session.get('filter_from') != None else Transaction.first_date(accountid)
 	f_to = session['filter_to'] if session.get('filter_to') != None else Transaction.last_date(accountid)
+	f_desc = session['filter_desc'] if session.get('filter_desc') != None else ''
+	f_card = session['filter_card'] if session.get('filter_card') != None else None
 	f_tag = session['filter_tag'] if session.get('filter_tag') != None else Tag.list_tag_id(accountid)
-	trns = Transaction.list_filtered_new(accountid, f_from, f_to).paginate(page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
+	trns = Transaction.list_filtered_new(accountid, f_from, f_to, f_desc, f_card).paginate(page=page, per_page=app.config['POSTS_PER_PAGE'], error_out=False)
 	has_prev = url_for('listNew', accountid=accountid, page=trns.prev_num) if trns.has_prev else None
 	has_next = url_for('listNew', accountid=accountid, page=trns.next_num) if trns.has_next else None
 	cnt_new = Transaction.cnt_new(accountid)
@@ -354,9 +364,11 @@ def listNew(accountid):
 		'url_for_name' : 'listNew',
 		'acc_name' : Account.one_acc(accountid),
 		'tags' : Tag.list_tag(accountid),
-		'cnt_avg_sum' : Transaction.cnt_avg_sum_filtered_new(accountid, f_from, f_to),
+		'cnt_avg_sum' : Transaction.cnt_avg_sum_filtered_new(accountid, f_from, f_to, f_desc, f_card),
 		'filter_from' : f_from,
 		'filter_to' : f_to,
+		'filter_desc' : f_desc,
+		'filter_card' : f_card,
 		'filter_tag' : [f_tag],
 		'cnt_new' : cnt_new,
 		'page_name' : 'listNew'
@@ -373,25 +385,33 @@ def filter(accountid,page_name='listAll'):
 		if not request.form.getlist("filter_tag[]"): #when submiting a filter, check if category is selected
 			session['filter_from'] = request.form['filter_from']
 			session['filter_to']   = request.form['filter_to']
+			session['filter_desc'] = request.form['filter_desc']
+			session['filter_card'] = request.form['filter_card'] or None
 			session['filter_tag']  = None
 			flash(lang['flash_msg_no_tag_selected'],'warning')
 		else:
 			session['filter_from'] = request.form['filter_from']
 			session['filter_to']   = request.form['filter_to']
+			session['filter_desc'] = request.form['filter_desc']
+			session['filter_card'] = request.form['filter_card'] or None
 			session['filter_tag']  = request.form.getlist("filter_tag[]", type=int)
 		return redirect(url_for(page_name, accountid=accountid))
 	else: #reset filter
 		session['filter_from'] = None
 		session['filter_to'] = None
 		session['filter_tag'] = None
+		session['filter_desc'] = None
+		session['filter_card'] = None
 		return redirect(url_for(page_name, accountid=accountid))
 
 ##----------------------------------------------------------------------------------------------------Pre-Filter Apply
 @app.route("/prefilter/<accountid>")
 def prefilter(accountid):
 	session['filter_from'] = request.args.get('datefrom') if request.args.get('datefrom')!=None else None
-	session['filter_to'] = request.args.get('dateto') if request.args.get('dateto')!=None else None
-	session['filter_tag'] = Tag.list_tag_id_of_group(request.args.get('taggroup'), accountid) if request.args.get('taggroup') not in [None,'0'] else None
+	session['filter_to']   = request.args.get('dateto') if request.args.get('dateto')!=None else None
+	session['filter_desc'] = None
+	session['filter_card'] = None
+	session['filter_tag']  = Tag.list_tag_id_of_group(request.args.get('taggroup'), accountid) if request.args.get('taggroup') not in [None,'0'] else None
 	return redirect(url_for('listAll', accountid=accountid))
 
 ##----------------------------------------------------------------------------------------------------Condition Page
