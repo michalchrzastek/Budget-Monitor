@@ -117,7 +117,8 @@ class Config(object):
             "btn_create":"Create",
             "btn_rename_matching":"Rename Matching",
             "btn_tags_select":"Select All Tags",
-            "btn_tags_unselect":"Unselect All Tags"
+            "btn_tags_unselect":"Unselect All Tags",
+            "btn_show_more":""
             },
         "pl":{
             "budget_monitor":"Budget Monitor",
@@ -222,6 +223,7 @@ class Config(object):
             "btn_create":"Utwórz",
             "btn_rename_matching":"Zamień Istniejące Opisy",
             "btn_tags_select":"Zaznacz Wszystkie Kategorie",
-            "btn_tags_unselect":"Odznacz Wszytskie Kategorie"
+            "btn_tags_unselect":"Odznacz Wszytskie Kategorie",
+            "btn_show_more":"Pokaż Więcej"
             }
     }
