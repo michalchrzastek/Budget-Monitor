@@ -2,7 +2,7 @@
 A monthly budget monitor. Upload statement file, group by categories &amp; analyse your spending trends.
 
 ## What is it?
-Python + Flask + SQLite (or PostgreSQL) web app. Upload a statement in QIF format. Data is saved in your local database. Create transaction tags, then monitor your spending habits month after month.
+Python + Flask + SQLite web app. Upload a statement in QIF format. Data is saved in your local database. Create transaction tags, then monitor your spending habits month after month. Combine statements from credit &amp; debit cards, even from different banks, to create one clear picture of your personal cash flow. Is your credit card statement generated mid-month? No more, now you can see each month from 1st to last day.
 
 ## Why QIF not CSV?
 All banks I have expierienced with, produce the QIF file in exact same format, where CSV have different formatting.
@@ -19,15 +19,25 @@ QIF format/layout is the same from bank to bank, CVS varies.
 There is a number of budget monitor like apps, but appart of some requiring to register or to share personal and bank details, I just wanted to build my own :)
 
 ## Plans for the future:
-- Upversion charts to Chart.js v4
+- Maintain...
+
+July 2024 update
+- Upgraded Bootstrap to 5.3.3
+- Upgraded Bootstrap Icons to 1.11.3
+- Upgraded ChartsJS to 4.4.3
+- Upgraded requirements.txt packanges to latest versions
+- Automated MPG calculation for fuel chart
+- Added 2 new optional filters for transaction view, [text] & [card] type
+- Added card type column to transaction view
+- Changed JS getAjax function from fixed host to auto detect 'IP' or 'localhost'
 
 May 2023 update:
-- Upgraded to Bootstrap 5.2.3
-- Upgraded ChartsJS from to 3.9.1
+- Upgraded Bootstrap to 5.2.3
+- Upgraded ChartsJS to 3.9.1
 - Upgraded to pandas 2.0.1
 - Date Picker works again with TempusDominus 6.7.7
 - Redesigned how the overview page works/looks
-- Added new fuel trend 
+- Added new fuel chart
 
 January 2022 update:
 - Upgraded Bootstrap from 4.5 to 5.1

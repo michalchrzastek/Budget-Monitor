@@ -245,9 +245,9 @@ def chart(accountid,chart):
 	elif chart == '2':
 		return {"chart": Transaction.chart_line(accountid, f_from, f_to, f_tag, f_desc, f_card)}
 	elif chart == '3':
-		return {"chart": Transaction.chart_weekday(accountid, f_from, f_to, f_tag, f_desc, f_card)}
+		return {"chart": Transaction.chart_monthday(accountid, f_from, f_to, f_tag, f_desc, f_card)}
 	elif chart == '4':
-		return {"chart":Transaction.chart_fuel(accountid, f_from, f_to, app.config['FUEL_TAG_NAME'])}
+		return {"chart": Transaction.chart_fuel(accountid, f_from, f_to, app.config['FUEL_TAG_NAME'])}
 	else:
 		return jsonify('Hello, World!')
 

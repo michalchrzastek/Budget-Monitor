@@ -130,16 +130,13 @@ class Transaction(db.Model):
 							.one_or_none()
 
 	def list_filtered(account_id, date_from, date_to, sel_tags, f_desc, f_card):
-		print(f_card)
-		q= Transaction.query.filter(Transaction.acc_id == account_id\
+		return Transaction.query.filter(Transaction.acc_id == account_id\
 								,Transaction.traDate >= date_from\
 								,Transaction.traDate <= date_to\
 								,Transaction.tag_id.in_(sel_tags)\
 								,Transaction.desc.like('%'+ f_desc +'%')\
 								,or_(f_card == None, Transaction.card == f_card))\
 							.order_by(Transaction.traDate.desc(), Transaction.amount)
-		print(q)
-		return q
 
 	def cnt_avg_sum_filtered_new(account_id, date_from, date_to, f_desc, f_card):
 		return Transaction.query\
@@ -444,7 +441,6 @@ class Transaction(db.Model):
 					,or_(f_card == None, Transaction.card == f_card))\
 			.group_by(Taggroup.gName,func.strftime('%Y-%m',Transaction.traDate),Taggroup.gColor)\
 			.order_by(func.strftime('%Y-%m',Transaction.traDate))
-		
 		out_dict = []
 		for r in res:
 			out_dict.append({'Category':r[0],'amount':r[1],'yyyymm':r[2],'color':r[3]})
@@ -465,14 +461,14 @@ class Transaction(db.Model):
 					,or_(f_card == None, Transaction.card == f_card))\
 			.group_by(Transaction.traDate)\
 			.order_by(Transaction.traDate)
-		
 		out_dict = []
 		for r in res:
 			out_dict.append({'traDate':r[0],'amount':r[1]})
 		return out_dict
 
-	def chart_weekday(account_id,date_from,date_to,sel_tags,f_desc,f_card):
-		res = db.session.query(func.strftime('%w',Transaction.traDate).label('wkDay')\
+	def chart_monthday(account_id,date_from,date_to,sel_tags,f_desc,f_card):
+		monthDays = db.session.query(func.strftime('%d',Transaction.traDate).label('mD')).group_by(func.strftime('%d',Transaction.traDate)).subquery()
+		data = db.session.query(func.strftime('%d',Transaction.traDate).label('mDay')\
 							,func.ABS(func.SUM(Transaction.amount)).label('amount'))\
     		.outerjoin(Tag, Transaction.tag_id == Tag.id)\
 			.outerjoin(Taggroup, Taggroup.id == Tag.tgr_id)\
@@ -484,11 +480,16 @@ class Transaction(db.Model):
 					,Transaction.traDate <= date_to\
 					,Transaction.desc.like('%'+ f_desc +'%')\
 					,or_(f_card == None, Transaction.card == f_card))\
-			.group_by(func.strftime('%w',Transaction.traDate))\
-			.order_by(func.strftime('%w',Transaction.traDate))
+			.group_by(func.strftime('%d',Transaction.traDate))\
+			.subquery()
+		res = db.session.query(monthDays.c.mD\
+								,data.c.mDay\
+								,data.c.amount)\
+				.outerjoin(data, monthDays.c.mD == data.c.mDay)\
+				.order_by(monthDays.c.mD)
 		out_dict = []
 		for r in res:
-			out_dict.append({'wkDay':r[0],'amount':r[1]})
+			out_dict.append({'mDay':r[0],'amount':r[2]})
 		return out_dict
 
 	def chart_fuel(account_id,from_date,to_date,fuel_tag_name):
@@ -507,11 +508,11 @@ class Transaction(db.Model):
 		df['desc'] = df['desc'].replace({'||':'|'})
 		df['desc'] = df['desc'].str.split('|').str.get(-1)
 		df = df[df['desc'].str.contains("miles")]
-		df['miles'] = df['desc'].str.split(',').str.get(-4).str.split(':').str.get(-1).astype(int)
-		df['perLtr'] = df['desc'].str.split(',').str.get(-3).str.split(':').str.get(-1).astype(float)
-		df['mpg'] = df['desc'].str.split(',').str.get(-2).str.split(':').str.get(-1).astype(float)
-		df['lp100'] = df['desc'].str.split(',').str.get(-1).str.split(':').str.get(-1).astype(float)
+		df['miles'] = df['desc'].str.split(',').str.get(-2).str.split(':').str.get(-1).astype(int)
+		df['perLtr'] = df['desc'].str.split(',').str.get(-1).str.split(':').str.get(-1).astype(float)
 		df['litres'] = round(df['amount']/df['perLtr'],2)
+		df['mpg'] = round(-1*(df['miles']/(df['amount']/df['perLtr']))*4.544,2)
+		df['lp100'] = round(282.481/df['mpg'],2)
 		del df['desc']
 		return df.to_dict(orient='records')
 		
