@@ -25,7 +25,7 @@ July 2024 update
 - Upgraded Bootstrap to 5.3.3
 - Upgraded Bootstrap Icons to 1.11.3
 - Upgraded ChartsJS to 4.4.3
-- Upgraded requirements.txt packanges to latest versions
+- Upgraded requirements.txt packages to latest versions
 - Automated MPG calculation for fuel chart
 - Added 2 new optional filters for transaction view, [text] & [card] type
 - Added card type column to transaction view
@@ -84,5 +84,5 @@ localhost:5000
 2. Copy the budgetmonitor.db file to a safe place.
 3. Delete the Budget-Monitor folder
 4. Follow the installation instructions
-5. After initial launch, close the app/terminal and replace the new budgetmonitor.db file with your backup copy fom step 2.
+5. After initial launch, close the app/terminal and replace the new budgetmonitor.db file with your backup copy from step 2.
 6. Start the app same way as usual.
